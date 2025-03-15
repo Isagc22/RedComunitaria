@@ -13,4 +13,6 @@ public class ProduccionConsumoEnergia {
     private int idPRODUCCION_CONSUMO_ENERGIA;
 
 
+
+
 }
