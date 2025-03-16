@@ -8,6 +8,7 @@ import lombok.Data;
 @Data
 public class Usuario {
 
+    //CREACION
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idUSUARIOS;
