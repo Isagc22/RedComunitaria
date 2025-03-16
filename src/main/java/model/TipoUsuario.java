@@ -2,11 +2,14 @@
 package model;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.List;
 
 
 @Entity
 @Table(name = "TIPOUSUARIO")
+@Data
 public class TipoUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

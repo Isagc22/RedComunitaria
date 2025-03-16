@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "COMENTARIOS_Y_CALIFICACIONES")
+@Data
 public class ComentariosYCalificaciones {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

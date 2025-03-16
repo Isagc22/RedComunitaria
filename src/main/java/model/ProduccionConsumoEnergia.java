@@ -8,6 +8,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "PRODUCCION_CONSUMO_ENERGIA")
+@Data
 public class ProduccionConsumoEnergia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

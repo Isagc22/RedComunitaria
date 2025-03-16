@@ -7,6 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "TIPODOCUMENTO")
+@Data
 public class TipoDocumento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

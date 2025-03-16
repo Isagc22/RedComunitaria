@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "HISTORIAL_EMPRENDIMIENTO")
+@Data
 public class HistorialEmprendimiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

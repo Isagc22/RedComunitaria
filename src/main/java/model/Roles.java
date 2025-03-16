@@ -1,11 +1,13 @@
 package model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "ROLES")
+@Data
 public class Roles {
 
     @Id
