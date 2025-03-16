@@ -21,6 +21,9 @@ public class DatosPersonales {
     @Column(nullable = false, length = 15)
     private String telefono;
 
+    @Column(name = "imagen", nullable = false)
+    private byte[] imagen;
+
     @ManyToOne
     @JoinColumn(name = "idTipoDocumento", nullable = false)
     private TipoDocumento tipoDocumento;
@@ -29,6 +32,6 @@ public class DatosPersonales {
     @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
 
-    // Getters y Setters
+
 }
 

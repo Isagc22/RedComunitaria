@@ -3,45 +3,28 @@ package controller;
 import model.Usuario;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import services.UsuarioService;
+import repository.UsuarioRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/usuarios")
 public class UsuarioController {
+    private final UsuarioRepository usuarioRepository;
 
-    private final UsuarioService usuarioService;
-
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
+    public UsuarioController(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
-    // Guardar un usuario
+    // Crear usuario
     @PostMapping
     public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
-        Usuario nuevoUsuario = usuarioService.guardar(usuario);
-        return ResponseEntity.ok(nuevoUsuario);
+        return ResponseEntity.ok(usuarioRepository.save(usuario));
     }
 
-    // Listar todos los usuarios
+    // Obtener todos los usuarios
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarUsuarios() {
-        return ResponseEntity.ok(usuarioService.listarTodos());
-    }
-
-    // Obtener usuario por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuario(@PathVariable Integer id) {
-        Optional<Usuario> usuario = usuarioService.obtenerPorId(id);
-        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    // Eliminar usuario por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable Integer id) {
-        usuarioService.eliminar(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<List<Usuario>> obtenerUsuarios() {
+        return ResponseEntity.ok(usuarioRepository.findAll());
     }
 }

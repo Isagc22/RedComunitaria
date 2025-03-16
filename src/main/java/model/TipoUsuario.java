@@ -1,11 +1,8 @@
-
 package model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.List;
-
 
 @Entity
 @Table(name = "TIPOUSUARIO")
@@ -13,13 +10,16 @@ import java.util.List;
 public class TipoUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idTipoUsuario;
+    private Integer idTIPOUSUARIO;
 
     @Column(nullable = false, length = 100)
-    private String nombre;
+    private String nombre_tipo_usuario;
+
+    @Column(nullable = false)
+    private boolean estado_tipo_usuario;
 
     @OneToMany(mappedBy = "tipoUsuario")
-    private List<Usuario> usuarios;
+    private List<Roles> roles;
 
 }
 

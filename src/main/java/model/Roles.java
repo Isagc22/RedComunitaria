@@ -12,7 +12,7 @@ public class Roles {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idRoles;
+    private Integer idROLES;
 
     @Column(nullable = false)
     private LocalDateTime creado;
@@ -21,11 +21,12 @@ public class Roles {
     private LocalDateTime modificado;
 
     @ManyToOne
-    @JoinColumn(name = "idUsuarios", nullable = false)
+    @JoinColumn(name = "idUSUARIOS", nullable = false)
     private Usuario usuario;
 
     @ManyToOne
-    @JoinColumn(name = "idTipoUsuario", nullable = false)
+    @JoinColumn(name = "idTIPOUSUARIO", nullable = false)
     private TipoUsuario tipoUsuario;
+
 }
 
