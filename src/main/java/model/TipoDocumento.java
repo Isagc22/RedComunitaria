@@ -18,6 +18,5 @@ public class TipoDocumento {
     @OneToMany(mappedBy = "tipoDocumento")
     private List<DatosPersonales> datosPersonales;
 
-    // Getters y Setters
 }
 

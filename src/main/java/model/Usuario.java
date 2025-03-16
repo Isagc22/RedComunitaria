@@ -26,6 +26,6 @@ public class Usuario {
     @OneToOne(mappedBy = "usuario")
     private DatosPersonales datosPersonales;
 
-    // Getters y Setters
+
 }
 

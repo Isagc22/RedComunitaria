@@ -18,6 +18,5 @@ public class TipoUsuario {
     @OneToMany(mappedBy = "tipoUsuario")
     private List<Usuario> usuarios;
 
-    // Getters y Setters
 }
 

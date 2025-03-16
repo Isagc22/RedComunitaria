@@ -28,6 +28,5 @@ public class ComentariosYCalificaciones {
     @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
 
-    // Getters y Setters
 }
 

@@ -23,6 +23,4 @@ public class HistorialEmprendimiento {
     @ManyToOne
     @JoinColumn(name = "idEmprendimiento", nullable = false)
     private Emprendimiento emprendimiento;
-
-    // Getters y Setters
 }
