@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Entity
-@Table(name = "datospersonales")
+@Table(name = "DATOSPERSONALES")
 public class DatosPersonales {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

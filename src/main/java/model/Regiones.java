@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Entity
-@Table(name = "regiones")
+@Table(name = "REGIONES")
 public class Regiones {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

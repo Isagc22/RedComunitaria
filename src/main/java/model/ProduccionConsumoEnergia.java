@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 @Entity
-@Table(name = "produccion_consumo_energia")
+@Table(name = "PRODUCCION_CONSUMO_ENERGIA")
 public class ProduccionConsumoEnergia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
