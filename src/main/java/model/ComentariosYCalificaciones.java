@@ -24,6 +24,7 @@ public class ComentariosYCalificaciones {
     @JoinColumn(name = "idEmprendimiento", nullable = false)
     private Emprendimiento emprendimiento;
 
+    //gfhfgh
     @ManyToOne
     @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
