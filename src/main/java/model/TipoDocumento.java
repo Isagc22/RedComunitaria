@@ -3,15 +3,21 @@ package model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "TIPODOCUMENTO")
-@Data
-public class TipoDocumento {
+import java.util.List;
 
+@Entity
+@Table(name = "tipodocumento")
+public class TipoDocumento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idTIPODOCUMENTO;
+    private Integer idTipoDocumento;
 
-    @Column(name = "nombre_tipo_documento")
+    @Column(nullable = false, length = 100)
     private String nombreTipoDocumento;
+
+    @OneToMany(mappedBy = "tipoDocumento")
+    private List<DatosPersonales> datosPersonales;
+
+    // Getters y Setters
 }
+

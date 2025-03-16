@@ -4,23 +4,28 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "USUARIOS")
-@Data
+@Table(name = "usuarios")
 public class Usuario {
-
-    //CREACION
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idUSUARIOS;
+    private Integer idUsuario;
 
-    @Column(nullable = false, length = 185, unique = true)
-    private String email_user;
+    @Column(nullable = false, unique = true, length = 255)
+    private String email;
 
-    @Column(nullable = false, length = 15)
-    private String password_user;
+    @Column(nullable = false, length = 255)
+    private String password;
 
-    @Column(nullable = false)
-    public boolean estado_user;
+    private Boolean estadoUser;
 
+    // Relaciones
+    @ManyToOne
+    @JoinColumn(name = "tipoUsuario")
+    private TipoUsuario tipoUsuario;
 
+    @OneToOne(mappedBy = "usuario")
+    private DatosPersonales datosPersonales;
+
+    // Getters y Setters
 }
+

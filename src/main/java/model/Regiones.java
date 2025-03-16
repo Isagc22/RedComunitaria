@@ -3,18 +3,19 @@ package model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "REGIONES")
-@Data
-public class Regiones {
+import java.util.List;
 
+@Entity
+@Table(name = "regiones")
+public class Regiones {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idREGIONES;
+    private Integer idRegion;
 
-    private String nombre_Region;
+    @Column(nullable = false, length = 100)
+    private String nombreRegion;
 
-
-
+    @OneToMany(mappedBy = "region")
+    private List<Emprendimiento> emprendimientos;
 
 }

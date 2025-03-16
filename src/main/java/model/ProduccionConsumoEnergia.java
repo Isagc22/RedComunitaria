@@ -3,16 +3,26 @@ package model;
 import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity
-@Table(name = "PRODUCCION_CONSUMO_ENERGIA")
-@Data
-public class ProduccionConsumoEnergia {
+import java.math.BigDecimal;
+import java.util.Date;
 
+@Entity
+@Table(name = "produccion_consumo_energia")
+public class ProduccionConsumoEnergia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int idPRODUCCION_CONSUMO_ENERGIA;
+    private Integer idProduccionConsumoEnergia;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal produccionEnergia;
 
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal consumoEnergia;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fechaRegistro;
 
+    @ManyToOne
+    @JoinColumn(name = "idEmprendimiento", nullable = false)
+    private Emprendimiento emprendimiento;
 }
