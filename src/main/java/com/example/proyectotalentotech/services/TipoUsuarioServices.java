@@ -1,6 +1,7 @@
 package com.example.proyectotalentotech.services;
 
 import com.example.proyectotalentotech.model.TipoUsuario;
+import com.example.proyectotalentotech.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.example.proyectotalentotech.repository.TipoUsuarioRepository;
@@ -17,6 +18,7 @@ public class TipoUsuarioServices {
     public TipoUsuarioServices(TipoUsuarioRepository tipoUsuarioRepository) {
         this.tipoUsuarioRepository = tipoUsuarioRepository;
     }
+
 
     public List<TipoUsuario> listarTodos() {
         return tipoUsuarioRepository.findAll();
