@@ -21,7 +21,7 @@ public class DatosPersonales {
     @Column(nullable = false, length = 15)
     private String telefono;
 
-    @Column(name = "imagen", nullable = false)
+    @Column(name = "imagen", nullable = true)
     private byte[] imagen;
 
     @ManyToOne

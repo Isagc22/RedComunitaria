@@ -1,5 +1,6 @@
 package com.example.proyectotalentotech.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,6 +18,7 @@ public class TipoDocumento {
     private String nombre_tipo_documento;
 
     @OneToMany(mappedBy = "tipoDocumento")
+    @JsonIgnore
     private List<DatosPersonales> datosPersonales;
 
 }

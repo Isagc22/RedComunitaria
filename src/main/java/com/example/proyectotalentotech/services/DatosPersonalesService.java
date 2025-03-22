@@ -33,5 +33,8 @@ public class DatosPersonalesService {
     public void eliminar(Integer id) {
         datosPersonalesRepository.deleteById(id);
     }
-}
 
+    public Optional<DatosPersonales> obtenerPorUsuarioId(Integer usuarioId) {
+        return datosPersonalesRepository.findByUsuario_idUSUARIOS(usuarioId);
+    }
+}
