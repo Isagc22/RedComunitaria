@@ -1,15 +1,17 @@
 package com.example.proyectotalentotech.controller;
 
 import com.example.proyectotalentotech.model.Usuario;
+import com.example.proyectotalentotech.services.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.example.proyectotalentotech.services.UsuarioService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
+
     private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService) {
@@ -17,18 +19,24 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> crearUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<Usuario> crear(@RequestBody Usuario usuario) {
         return ResponseEntity.ok(usuarioService.guardar(usuario));
-
-    }
-
-    @GetMapping("/hola")
-    public ResponseEntity<String> decirHola() {
-        return ResponseEntity.ok("Hola Mundo");
     }
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> obtenerUsuarios() {
+    public ResponseEntity<List<Usuario>> listarTodos() {
         return ResponseEntity.ok(usuarioService.listarTodos());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Usuario> obtenerPorId(@PathVariable Integer id) {
+        Optional<Usuario> usuario = usuarioService.obtenerPorId(id);
+        return usuario.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        usuarioService.eliminar(id);
+        return ResponseEntity.noContent().build();
     }
 }
