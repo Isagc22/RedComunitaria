@@ -11,5 +11,4 @@ public class ProyectoTalentoTechApplication {
     public static void main(String[] args) {
         SpringApplication.run(ProyectoTalentoTechApplication.class, args);
     }
-    //gdfg
 }

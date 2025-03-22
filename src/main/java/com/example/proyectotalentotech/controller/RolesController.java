@@ -25,4 +25,11 @@ public class RolesController {
     public ResponseEntity<List<Roles>> obtenerRoles() {
         return ResponseEntity.ok(rolesService.listarTodos());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+        rolesService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

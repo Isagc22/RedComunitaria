@@ -26,6 +26,12 @@ public class TipoDocumentoController {
 
     @GetMapping
     public ResponseEntity<List<TipoDocumento>> obtenerTipoDocumentos() {
-        return ResponseEntity.ok(tipoDocumentoService.listarTipoDocumento());
+        return ResponseEntity.ok(tipoDocumentoService.listarTodos());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable Integer id){
+        tipoDocumentoService.eliminar(id);
+        return ResponseEntity.ok().build();
     }
 }

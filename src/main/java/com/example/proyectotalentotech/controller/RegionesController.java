@@ -25,4 +25,11 @@ public class RegionesController {
     public ResponseEntity<List<Regiones>> obtenerRegiones() {
         return ResponseEntity.ok(regionesService.listarTodos());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarRegion(@PathVariable Integer id) {
+        regionesService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
