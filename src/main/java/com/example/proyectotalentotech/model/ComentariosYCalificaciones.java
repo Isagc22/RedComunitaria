@@ -5,30 +5,36 @@ import lombok.Data;
 import java.util.Date;
 
 @Entity
-@Table(name = "COMENTARIOS_Y_CALIFICACIONES")
+@Table(name = "comentariosycalificaciones")
 @Data
 public class ComentariosYCalificaciones {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idComentariosCalificaciones;
+    private Integer idcomentariosycalificaciones;
 
     @Column(nullable = false, length = 255)
-    private String comentarios;
+    private String comentario;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecha_registro;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date fecha_comentario;
 
     @Column(nullable = false)
     private Integer calificacion;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaRegistro;
+    @Column(nullable = false)
+    private int idemprendimiento;
 
-    @ManyToOne
-    @JoinColumn(name = "idEmprendimiento", nullable = false)
-    private Emprendimiento emprendimiento;
+    @Column(nullable = false)
+    private int idusuarios;
 
-    //gfhfgh
-    @ManyToOne
-    @JoinColumn(name = "idUsuario", nullable = false)
-    private Usuario usuario;
+
+
+
+
+
 
 }
 

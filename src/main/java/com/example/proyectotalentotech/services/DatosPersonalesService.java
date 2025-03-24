@@ -35,6 +35,6 @@ public class DatosPersonalesService {
     }
 
     public Optional<DatosPersonales> obtenerPorUsuarioId(Integer usuarioId) {
-        return datosPersonalesRepository.findByUsuario_idUSUARIOS(usuarioId);
+        return datosPersonalesRepository.findByiddatospersonales(usuarioId);
     }
 }

@@ -1,10 +1,8 @@
 package com.example.proyectotalentotech.services;
-
 import com.example.proyectotalentotech.model.ProduccionConsumoEnergia;
+import com.example.proyectotalentotech.repository.ProduccionConsumoEnergiaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.proyectotalentotech.repository.ProduccionConsumoEnergiaRepository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -26,12 +24,12 @@ public class ProduccionConsumoEnergiaServices {
         return repository.findById(id);
     }
 
-    public ProduccionConsumoEnergia guardar(ProduccionConsumoEnergia entity) {
-        return repository.save(entity);
+    public ProduccionConsumoEnergia guardar(ProduccionConsumoEnergia produccionConsumoEnergia) {
+        return repository.save(produccionConsumoEnergia);
     }
+
 
     public void eliminar(Integer id) {
         repository.deleteById(id);
     }
 }
-

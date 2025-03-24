@@ -2,17 +2,15 @@ package com.example.proyectotalentotech.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.util.Date;
-import java.util.List;
 
 @Entity
-@Table(name = "EMPRENDIMIENTO")
+@Table(name = "emprendimiento")
 @Data
 public class Emprendimiento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idEmprendimiento;
+    private Integer idemprendimiento;
 
     @Column(nullable = false, length = 100)
     private String nombre;
@@ -20,21 +18,26 @@ public class Emprendimiento {
     @Column(nullable = false)
     private String descripcion;
 
+    @Column(nullable = false)
+    private String tipo;
+
     @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaCreacion;
+    private Date fecha_creacion;
 
-    private Boolean estadoEmprendimiento;
+    @Column(nullable = false)
+    private Boolean estado_emprendimiento;
 
-    // Relaciones
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
+    @Column(nullable = true)
+    private byte[] imagen_emprendimiento;
 
-    @ManyToOne
-    @JoinColumn(name = "region_id")
-    private Regiones region;
+    @Column(nullable = false)
+    private int idregiones;
 
-    @OneToMany(mappedBy = "emprendimiento")
-    private List<ProduccionConsumoEnergia> produccionConsumoEnergia;
+    @Column(nullable = false)
+    private int idusuarios;
+
+
+
+
 
 }

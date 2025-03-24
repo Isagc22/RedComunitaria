@@ -1,29 +1,30 @@
-package com.example.proyectotalentotech.model;
+    package com.example.proyectotalentotech.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
+    import com.fasterxml.jackson.annotation.JsonBackReference;
+    import com.fasterxml.jackson.annotation.JsonManagedReference;
+    import jakarta.persistence.*;
+    import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.Date;
+    import java.math.BigDecimal;
+    import java.util.Date;
 
-@Entity
-@Table(name = "PRODUCCION_CONSUMO_ENERGIA")
-@Data
-public class ProduccionConsumoEnergia {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idProduccionConsumoEnergia;
+    @Entity
+    @Table(name = "produccionconsumoenergia")
+    @Data
+    public class ProduccionConsumoEnergia {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Integer idproduccionconsumoenergia;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal produccionEnergia;
+        @Column(nullable = false, precision = 10, scale = 2)
+        private BigDecimal produccion_energia;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal consumoEnergia;
+        @Column(nullable = false, precision = 10, scale = 2)
+        private BigDecimal consumo_energia;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaRegistro;
+        @Temporal(TemporalType.TIMESTAMP)
+        private Date fecha_registro;
 
-    @ManyToOne
-    @JoinColumn(name = "idEmprendimiento", nullable = false)
-    private Emprendimiento emprendimiento;
-}
+        @Column(nullable = false)
+        private int idemprendimiento;
+    }

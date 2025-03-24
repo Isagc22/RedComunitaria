@@ -2,18 +2,21 @@ package com.example.proyectotalentotech.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.Date;
 
 @Entity
-@Table(name = "DATOSPERSONALES")
+@Table(name = "datospersonales")
 @Data
 public class DatosPersonales {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idDatosPersonales;
+    private Integer iddatospersonales;
 
-    @Column(nullable = false)
-    private Date fechaNacimiento;
+    @Column(nullable = false, length = 255)
+    private String nombre_completo;
+
+    @Column(nullable = false, unique = true)
+    private String cedula;
 
     @Column(nullable = false, length = 255)
     private String direccion;
@@ -21,17 +24,14 @@ public class DatosPersonales {
     @Column(nullable = false, length = 15)
     private String telefono;
 
-    @Column(name = "imagen", nullable = true)
+    @Column(name = "imagen")
     private byte[] imagen;
 
-    @ManyToOne
-    @JoinColumn(name = "idTipoDocumento", nullable = false)
-    private TipoDocumento tipoDocumento;
+    @Column(nullable = false)
+    private int idusuarios;
 
-    @OneToOne
-    @JoinColumn(name = "idUsuario", nullable = false)
-    private Usuario usuario;
-
+    @Column(nullable = false)
+    private int idtipodocumento;
 
 }
 
