@@ -80,12 +80,19 @@ public class ComentariosYCalificacionesController {
             comentariosycalificacionesActual.setIdusuarios(comentariosycalificaciones.getIdusuarios());
             return ResponseEntity.ok(comentariosYCalificacionesService.guardar(comentariosycalificacionesActual));
         } else {
+            System.out.println("No se encontró el comentario y calificación con id " + id);
             return ResponseEntity.notFound().build();
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
+
+        if (!comentariosYCalificacionesService.obtenerPorId(id).isPresent()) {
+            System.out.println("No se encontró el comentario y calificación con id " + id);
+            return ResponseEntity.badRequest().build();
+        }
+
         comentariosYCalificacionesService.eliminar(id);
         return ResponseEntity.noContent().build();
     }

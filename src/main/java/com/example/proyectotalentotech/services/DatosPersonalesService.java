@@ -26,6 +26,10 @@ public class DatosPersonalesService {
         return datosPersonalesRepository.findById(id);
     }
 
+    public Optional<DatosPersonales> editarPorId(Integer id) {
+        return datosPersonalesRepository.findById(id);
+    }
+
     public DatosPersonales guardar(DatosPersonales datosPersonales) {
         return datosPersonalesRepository.save(datosPersonales);
     }
@@ -34,7 +38,5 @@ public class DatosPersonalesService {
         datosPersonalesRepository.deleteById(id);
     }
 
-    public Optional<DatosPersonales> obtenerPorUsuarioId(Integer usuarioId) {
-        return datosPersonalesRepository.findByiddatospersonales(usuarioId);
-    }
+
 }

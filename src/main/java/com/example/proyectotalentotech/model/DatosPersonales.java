@@ -10,7 +10,7 @@ public class DatosPersonales {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer iddatospersonales;
+        private Integer iddatospersonales;
 
     @Column(nullable = false, length = 255)
     private String nombre_completo;
