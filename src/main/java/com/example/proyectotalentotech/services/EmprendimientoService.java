@@ -30,6 +30,10 @@ public class EmprendimientoService {
         return emprendimientoRepository.findById(id);
     }
 
+    public Optional<Emprendimiento> editarPorId(Integer id) {
+        return emprendimientoRepository.findById(id);
+    }
+
     public Emprendimiento guardar(Emprendimiento emprendimiento) {
         return emprendimientoRepository.save(emprendimiento);
     }
