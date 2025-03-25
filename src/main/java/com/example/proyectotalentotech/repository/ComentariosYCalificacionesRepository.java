@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ComentariosYCalificacionesRepository extends JpaRepository<ComentariosYCalificaciones, Integer> {
+
 }
 

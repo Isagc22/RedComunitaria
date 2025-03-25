@@ -5,12 +5,12 @@ import lombok.Data;
 import java.util.List;
 
 @Entity
-@Table(name = "TIPOUSUARIO")
+@Table(name = "tipousuario")
 @Data
 public class TipoUsuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idTIPOUSUARIO;
+    private Integer idtipousuario;
 
     @Column(nullable = false, length = 100)
     private String nombre_tipo_usuario;
@@ -18,8 +18,9 @@ public class TipoUsuario {
     @Column(nullable = false)
     private boolean estado_tipo_usuario;
 
-    @OneToMany(mappedBy = "tipoUsuario")
-    private List<Roles> roles;
+
+
+
 
 }
 

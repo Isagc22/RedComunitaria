@@ -26,6 +26,11 @@ public class ComentariosYCalificacionesService {
         return repository.findById(id);
     }
 
+    public Optional<ComentariosYCalificaciones> editarPorId(Integer id) {
+        return repository.findById(id);
+    }
+
+
     public ComentariosYCalificaciones guardar(ComentariosYCalificaciones entity) {
         return repository.save(entity);
     }

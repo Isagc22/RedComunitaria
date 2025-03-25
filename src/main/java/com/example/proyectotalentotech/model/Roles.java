@@ -6,13 +6,13 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ROLES")
+@Table(name = "roles")
 @Data
 public class Roles {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idROLES;
+    private Integer idroles;
 
     @Column(nullable = false)
     private LocalDateTime creado;
@@ -20,13 +20,13 @@ public class Roles {
     @Column(nullable = false)
     private LocalDateTime modificado;
 
-    @ManyToOne
-    @JoinColumn(name = "idUSUARIOS", nullable = false)
-    private Usuario usuario;
+    @Column(nullable = false)
+    private int idusuarios;
 
-    @ManyToOne
-    @JoinColumn(name = "idTIPOUSUARIO", nullable = false)
-    private TipoUsuario tipoUsuario;
+    @Column(nullable = false)
+    private int idtipousuario;
+
+
 
 }
 

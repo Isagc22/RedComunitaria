@@ -1,16 +1,19 @@
 package com.example.proyectotalentotech.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
-@Table(name = "USUARIOS")
+@Table(name = "usuarios")
 @Data
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idUSUARIOS;
+    private Integer idusuarios;
 
     @Column(nullable = false, unique = true, length = 255)
     private String email_user;
@@ -18,15 +21,9 @@ public class Usuario {
     @Column(nullable = false, length = 255)
     private String password_user;
 
+
+    @Column(nullable = false)
     private Boolean estado_user;
-
-
-
-    @OneToMany(mappedBy = "usuario")
-    private List<Roles> roles;
-
-    @OneToOne(mappedBy = "usuario")
-    private DatosPersonales datosPersonales;
 
 }
 

@@ -34,4 +34,3 @@ public class RegionesService {
         regionesRepository.deleteById(id);
     }
 }
-
