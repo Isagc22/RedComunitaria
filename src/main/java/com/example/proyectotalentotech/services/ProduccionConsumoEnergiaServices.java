@@ -1,4 +1,5 @@
 package com.example.proyectotalentotech.services;
+import com.example.proyectotalentotech.model.HistorialEmprendimiento;
 import com.example.proyectotalentotech.model.ProduccionConsumoEnergia;
 import com.example.proyectotalentotech.repository.ProduccionConsumoEnergiaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,12 @@ import java.util.Optional;
 public class ProduccionConsumoEnergiaServices {
 
     private final ProduccionConsumoEnergiaRepository repository;
+    private final ProduccionConsumoEnergiaRepository produccionConsumoEnergiaRepository;
 
     @Autowired
-    public ProduccionConsumoEnergiaServices(ProduccionConsumoEnergiaRepository repository) {
+    public ProduccionConsumoEnergiaServices(ProduccionConsumoEnergiaRepository repository, ProduccionConsumoEnergiaRepository produccionConsumoEnergiaRepository) {
         this.repository = repository;
+        this.produccionConsumoEnergiaRepository = produccionConsumoEnergiaRepository;
     }
 
     public List<ProduccionConsumoEnergia> listarTodos() {
@@ -26,6 +29,9 @@ public class ProduccionConsumoEnergiaServices {
 
     public ProduccionConsumoEnergia guardar(ProduccionConsumoEnergia produccionConsumoEnergia) {
         return repository.save(produccionConsumoEnergia);
+    }
+    public Optional<ProduccionConsumoEnergia> editarPorId(Integer id) {
+        return produccionConsumoEnergiaRepository.findById(id);
     }
 
 
