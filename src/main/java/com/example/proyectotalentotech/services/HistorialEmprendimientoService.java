@@ -1,5 +1,6 @@
 package com.example.proyectotalentotech.services;
 
+import com.example.proyectotalentotech.model.Emprendimiento;
 import com.example.proyectotalentotech.model.HistorialEmprendimiento;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,12 @@ import java.util.Optional;
 public class HistorialEmprendimientoService {
 
     private final HistorialEmprendimientoRepository repository;
+    private final HistorialEmprendimientoRepository historialEmprendimientoRepository;
 
     @Autowired
-    public HistorialEmprendimientoService(HistorialEmprendimientoRepository repository) {
+    public HistorialEmprendimientoService(HistorialEmprendimientoRepository repository, HistorialEmprendimientoRepository historialEmprendimientoRepository) {
         this.repository = repository;
+        this.historialEmprendimientoRepository = historialEmprendimientoRepository;
     }
 
     public List<HistorialEmprendimiento> listarTodos() {
@@ -28,6 +31,10 @@ public class HistorialEmprendimientoService {
 
     public HistorialEmprendimiento guardar(HistorialEmprendimiento entity) {
         return repository.save(entity);
+    }
+
+    public Optional<HistorialEmprendimiento> editarPorId(Integer id) {
+        return historialEmprendimientoRepository.findById(id);
     }
 
     public void eliminar(Integer id) {

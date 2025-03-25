@@ -18,9 +18,7 @@ public class EmprendimientoController {
     private final RegionesService regionesService;
     private final UsuarioService usuarioService;
 
-    public EmprendimientoController(EmprendimientoService emprendimientoService,
-                                    RegionesService regionesService,
-                                    UsuarioService usuarioService) {
+    public EmprendimientoController(EmprendimientoService emprendimientoService, RegionesService regionesService, UsuarioService usuarioService) {
 
         this.emprendimientoService = emprendimientoService;
         this.regionesService = regionesService;
