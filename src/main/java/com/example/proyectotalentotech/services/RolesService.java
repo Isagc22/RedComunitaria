@@ -1,5 +1,6 @@
 package com.example.proyectotalentotech.services;
 
+import com.example.proyectotalentotech.model.Regiones;
 import com.example.proyectotalentotech.model.Roles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,12 @@ import java.util.Optional;
 public class RolesService {
 
     private final RolesRepository rolRepository;
+    private final RolesRepository rolesRepository;
 
     @Autowired
-    public RolesService(RolesRepository rolRepository) {
+    public RolesService(RolesRepository rolRepository, RolesRepository rolesRepository) {
         this.rolRepository = rolRepository;
+        this.rolesRepository = rolesRepository;
     }
 
     public List<Roles> listarTodos() {
@@ -28,6 +31,10 @@ public class RolesService {
 
     public Roles guardar(Roles rol) {
         return rolRepository.save(rol);
+    }
+
+    public Optional<Roles> editarPorId(Integer id) {
+        return rolesRepository.findById(id);
     }
 
     public void eliminar(Integer id) {
