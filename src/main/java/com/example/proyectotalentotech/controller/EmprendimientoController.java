@@ -21,7 +21,6 @@ public class EmprendimientoController {
     public EmprendimientoController(EmprendimientoService emprendimientoService,
                                     RegionesService regionesService,
                                     UsuarioService usuarioService) {
-
         this.emprendimientoService = emprendimientoService;
         this.regionesService = regionesService;
         this.usuarioService = usuarioService;
@@ -38,7 +37,6 @@ public class EmprendimientoController {
             System.out.println("Usuario con id " + emprendimiento.getIdusuarios() + " no existe");
             return ResponseEntity.badRequest().body(null);
         }
-
 
         return ResponseEntity.ok(emprendimientoService.guardar(emprendimiento));
     }

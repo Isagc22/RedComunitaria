@@ -1,5 +1,6 @@
 package com.example.proyectotalentotech.services;
 
+import com.example.proyectotalentotech.model.TipoDocumento;
 import com.example.proyectotalentotech.model.TipoUsuario;
 import com.example.proyectotalentotech.model.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,5 +35,9 @@ public class TipoUsuarioServices {
 
     public void eliminar(Integer id) {
         tipoUsuarioRepository.deleteById(id);
+    }
+
+    public Optional<TipoUsuario> editarPorId(Integer id) {
+        return tipoUsuarioRepository.findById(id);
     }
 }
