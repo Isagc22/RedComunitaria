@@ -2,7 +2,6 @@ package com.example.proyectotalentotech.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.List;
 
 @Entity
 @Table(name = "tipousuario")
@@ -17,10 +16,5 @@ public class TipoUsuario {
 
     @Column(nullable = false)
     private boolean estado_tipo_usuario;
-
-
-
-
-
 }
 

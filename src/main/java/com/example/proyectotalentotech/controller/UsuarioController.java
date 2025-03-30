@@ -49,7 +49,7 @@ public class UsuarioController {
 
         if (entity.isPresent()) {
             Usuario usuarioActual = entity.get();
-            usuarioActual.setEmail_user(usuario.getEmail_user());
+            usuarioActual.setEmailUser(usuario.getEmailUser());
             usuarioActual.setPassword_user(usuario.getPassword_user());
             usuarioActual.setEstado_user(usuario.getEstado_user());
             return ResponseEntity.ok(usuarioService.guardar(usuarioActual));
@@ -66,4 +66,20 @@ public class UsuarioController {
         usuarioService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> iniciarSesion(@RequestBody Usuario usuario) {
+        Optional<Usuario> usuarioExistente = usuarioService.obtenerPorEmail(usuario.getEmailUser());
+
+        System.out.println("Intentando iniciar sesión con el usuario: " + usuario.getEmailUser());
+        if (usuarioExistente.isEmpty() ||
+                !usuarioExistente.get().getPassword_user().equals(usuario.getPassword_user())) {
+            return ResponseEntity.status(401).body("Credenciales incorrectas");
+        } else {
+            System.out.println("Usuario autenticado: " + usuarioExistente.get().getEmailUser());
+        }
+
+        return ResponseEntity.ok(usuarioExistente.get());
+    }
+
 }

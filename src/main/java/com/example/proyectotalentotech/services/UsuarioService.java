@@ -40,4 +40,8 @@ public class UsuarioService {
             throw new RuntimeException("El usuario con ID " + id + " no existe.");
         }
     }
+
+    public Optional<Usuario> obtenerPorEmail(String email) {
+        return usuarioRepository.findByEmailUser(email);
+    }
 }

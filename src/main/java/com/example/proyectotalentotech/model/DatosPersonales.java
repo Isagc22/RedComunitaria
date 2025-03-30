@@ -10,7 +10,7 @@ public class DatosPersonales {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Integer iddatospersonales;
+    private Integer iddatospersonales;
 
     @Column(nullable = false, length = 255)
     private String nombre_completo;
@@ -24,7 +24,7 @@ public class DatosPersonales {
     @Column(nullable = false, length = 15)
     private String telefono;
 
-    @Column(name = "imagen")
+    @Column(name = "imagen", columnDefinition = "MEDIUMGBLOB")
     private byte[] imagen;
 
     @Column(nullable = false)
