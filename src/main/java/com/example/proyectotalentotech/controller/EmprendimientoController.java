@@ -4,11 +4,16 @@ import com.example.proyectotalentotech.model.Emprendimiento;
 import com.example.proyectotalentotech.services.EmprendimientoService;
 import com.example.proyectotalentotech.services.RegionesService;
 import com.example.proyectotalentotech.services.UsuarioService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+
 
 @RestController
 @RequestMapping("/emprendimientos")
@@ -32,31 +37,26 @@ public class EmprendimientoController {
             System.out.println("Región con id " + emprendimiento.getIdregiones() + " no existe");
             return ResponseEntity.badRequest().body(null);
         }
-
         if (!usuarioService.obtenerPorId(emprendimiento.getIdusuarios()).isPresent()) {
             System.out.println("Usuario con id " + emprendimiento.getIdusuarios() + " no existe");
             return ResponseEntity.badRequest().body(null);
         }
-
         return ResponseEntity.ok(emprendimientoService.guardar(emprendimiento));
     }
 
     @GetMapping
     public ResponseEntity<List<Emprendimiento>> listarTodos() {
         List<Emprendimiento> lista = emprendimientoService.listarTodos();
-
         if (lista.isEmpty()) {
             System.out.println("⚠️ La tabla de emprendimientos está vacía.");
             return ResponseEntity.badRequest().build();
         }
-
-        return ResponseEntity.ok(emprendimientoService.listarTodos());
+        return ResponseEntity.ok(lista);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Emprendimiento> obtenerPorId(@PathVariable Integer id) {
         Optional<Emprendimiento> entity = emprendimientoService.obtenerPorId(id);
-
         if (entity.isEmpty()){
             System.out.println("No se encontró el emprendimiento con id " + id);
             return ResponseEntity.badRequest().build();
@@ -64,10 +64,12 @@ public class EmprendimientoController {
         return ResponseEntity.ok(entity.get());
     }
 
-    @PutMapping("/{id}")
-    public  ResponseEntity<Emprendimiento> editarPorId(@PathVariable Integer id, @RequestBody Emprendimiento emprendimiento) {
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<Emprendimiento> editarPorId(
+            @PathVariable Integer id,
+            @ModelAttribute Emprendimiento emprendimiento,
+            @RequestParam(value = "imagen", required = false) MultipartFile imagenFile) {
         Optional<Emprendimiento> entity = emprendimientoService.editarPorId(id);
-
         if (entity.isPresent()){
             Emprendimiento emprendimientoActual = entity.get();
             emprendimientoActual.setNombre(emprendimiento.getNombre());
@@ -75,7 +77,14 @@ public class EmprendimientoController {
             emprendimientoActual.setTipo(emprendimiento.getTipo());
             emprendimientoActual.setFecha_creacion(emprendimiento.getFecha_creacion());
             emprendimientoActual.setEstado_emprendimiento(emprendimiento.getEstado_emprendimiento());
-            emprendimientoActual.setImagen_emprendimiento(emprendimiento.getImagen_emprendimiento());
+            if (imagenFile != null && !imagenFile.isEmpty()){
+                try {
+                    emprendimientoActual.setImagen_emprendimiento(imagenFile.getBytes());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
             emprendimientoActual.setIdregiones(emprendimiento.getIdregiones());
             emprendimientoActual.setIdusuarios(emprendimiento.getIdusuarios());
             return ResponseEntity.ok(emprendimientoService.guardar(emprendimientoActual));
@@ -87,7 +96,7 @@ public class EmprendimientoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
-        if (!emprendimientoService.obtenerPorId(id).isPresent()) {;
+        if (!emprendimientoService.obtenerPorId(id).isPresent()){
             System.out.println("No se encontró el emprendimiento con id " + id);
             return ResponseEntity.badRequest().build();
         }
