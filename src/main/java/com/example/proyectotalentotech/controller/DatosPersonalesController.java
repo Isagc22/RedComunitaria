@@ -152,4 +152,11 @@ public class DatosPersonalesController {
         datosPersonalesService.eliminar(id);
         return ResponseEntity.noContent().build();
     }
+
+
+    @GetMapping("/usuario/{idusuarios}")
+    public ResponseEntity<DatosPersonales> obtenerPorUsuario(@PathVariable Integer idusuarios) {
+        Optional<DatosPersonales> datos = datosPersonalesService.obtenerPorIdUsuario(idusuarios);
+        return datos.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

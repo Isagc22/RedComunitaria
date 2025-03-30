@@ -1,21 +1,27 @@
 package com.example.proyectotalentotech.controller;
 
 import com.example.proyectotalentotech.model.Usuario;
+import com.example.proyectotalentotech.model.DatosPersonales;
+import com.example.proyectotalentotech.repository.DatosPersonalesRepository;
 import com.example.proyectotalentotech.services.UsuarioService;
+import com.example.proyectotalentotech.services.DatosPersonalesService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final DatosPersonalesService datosPersonalesService;
+    private final DatosPersonalesRepository datosPersonalesRepository;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, DatosPersonalesService datosPersonalesService, DatosPersonalesRepository datosPersonalesRepository) {
         this.usuarioService = usuarioService;
+        this.datosPersonalesService = datosPersonalesService;
+        this.datosPersonalesRepository = datosPersonalesRepository;
     }
 
     @PostMapping
@@ -71,15 +77,26 @@ public class UsuarioController {
     public ResponseEntity<?> iniciarSesion(@RequestBody Usuario usuario) {
         Optional<Usuario> usuarioExistente = usuarioService.obtenerPorEmail(usuario.getEmailUser());
 
-        System.out.println("Intentando iniciar sesión con el usuario: " + usuario.getEmailUser());
         if (usuarioExistente.isEmpty() ||
                 !usuarioExistente.get().getPassword_user().equals(usuario.getPassword_user())) {
             return ResponseEntity.status(401).body("Credenciales incorrectas");
-        } else {
-            System.out.println("Usuario autenticado: " + usuarioExistente.get().getEmailUser());
         }
 
-        return ResponseEntity.ok(usuarioExistente.get());
+        Usuario usuarioAutenticado = usuarioExistente.get();
+
+        // Prueba buscar datos personales con otro método
+        Optional<DatosPersonales> datosPersonales = datosPersonalesRepository.findByIdusuarios(usuarioAutenticado.getIdusuarios());
+
+        if (datosPersonales.isEmpty()) {
+            System.out.println("⚠️ No se encontraron datos personales para el usuario con ID " + usuarioAutenticado.getIdusuarios());
+        }
+
+        // Construir respuesta con usuario y datos personales
+        Map<String, Object> response = new HashMap<>();
+        response.put("usuario", usuarioAutenticado);
+        response.put("datosPersonales", datosPersonales.orElse(null));
+
+        return ResponseEntity.ok(response);
     }
 
 }
