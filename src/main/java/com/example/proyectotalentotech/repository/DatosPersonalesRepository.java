@@ -8,7 +8,8 @@ import java.util.Optional;
 
 @Repository
 public interface DatosPersonalesRepository extends JpaRepository<DatosPersonales, Integer> {
-    Optional<DatosPersonales> findByiddatospersonales(Integer usuarioId);
+    Optional<DatosPersonales> findByIdusuarios(Integer idusuarios);
+
 }
 
 
