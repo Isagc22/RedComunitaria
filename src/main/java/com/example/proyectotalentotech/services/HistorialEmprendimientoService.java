@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.example.proyectotalentotech.repository.HistorialEmprendimientoRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -39,5 +40,9 @@ public class HistorialEmprendimientoService {
 
     public void eliminar(Integer id) {
         repository.deleteById(id);
+    }
+
+    public List<Map<String, Object>> getTopPaisesEmprendimiento() {
+        return historialEmprendimientoRepository.getTopPaisesEmprendimiento();
     }
 }

@@ -25,8 +25,9 @@ public class Roles {
 
     @Column(nullable = false)
     private int idtipousuario;
-
-
+    
+    @Column(name = "nombre_rol", nullable = false, length = 50)
+    private String nombreRol;
 
 }
 

@@ -4,7 +4,9 @@ import com.example.proyectotalentotech.model.ProduccionConsumoEnergia;
 import com.example.proyectotalentotech.repository.ProduccionConsumoEnergiaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -23,19 +25,34 @@ public class ProduccionConsumoEnergiaServices {
         return repository.findAll();
     }
 
-    public Optional<ProduccionConsumoEnergia> obtenerPorId(Integer id) {
+    public Optional<ProduccionConsumoEnergia> obtenerPorId(Long id) {
         return repository.findById(id);
     }
 
     public ProduccionConsumoEnergia guardar(ProduccionConsumoEnergia produccionConsumoEnergia) {
         return repository.save(produccionConsumoEnergia);
     }
-    public Optional<ProduccionConsumoEnergia> editarPorId(Integer id) {
+    public Optional<ProduccionConsumoEnergia> editarPorId(Long id) {
         return produccionConsumoEnergiaRepository.findById(id);
     }
 
 
-    public void eliminar(Integer id) {
+    public void eliminar(Long id) {
         repository.deleteById(id);
+    }
+    
+    public List<Map<String, Object>> getResumenProduccionConsumo() {
+        return produccionConsumoEnergiaRepository.getResumenProduccionConsumo();
+    }
+
+    // Obtener datos por emprendimiento y rango de fechas
+    public List<ProduccionConsumoEnergia> obtenerPorEmprendimientoYRangoFechas(Long emprendimientoId, LocalDate fechaDesde, LocalDate fechaHasta) {
+        return produccionConsumoEnergiaRepository.findByEmprendimientoIdAndFechaBetweenOrderByFechaAsc(
+                emprendimientoId, fechaDesde, fechaHasta);
+    }
+
+    // Obtener datos de un emprendimiento
+    public List<ProduccionConsumoEnergia> obtenerPorEmprendimiento(Long emprendimientoId) {
+        return produccionConsumoEnergiaRepository.findByEmprendimientoIdOrderByFechaDesc(emprendimientoId);
     }
 }
