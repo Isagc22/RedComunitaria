@@ -35,6 +35,7 @@ public class EmprendimientoService {
     }
 
     public Emprendimiento guardar(Emprendimiento emprendimiento) {
+        System.out.println("Id usuario: " + emprendimiento.getIdusuarios());
         return emprendimientoRepository.save(emprendimiento);
     }
 

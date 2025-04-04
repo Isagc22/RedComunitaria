@@ -4,7 +4,9 @@ import com.example.proyectotalentotech.model.Emprendimiento;
 import com.example.proyectotalentotech.services.EmprendimientoService;
 import com.example.proyectotalentotech.services.RegionesService;
 import com.example.proyectotalentotech.services.UsuarioService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,35 +66,40 @@ public class EmprendimientoController {
         return ResponseEntity.ok(entity.get());
     }
 
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/{id}/actualizar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Emprendimiento> editarPorId(
             @PathVariable Integer id,
             @ModelAttribute Emprendimiento emprendimiento,
             @RequestParam(value = "imagen", required = false) MultipartFile imagenFile) {
-        Optional<Emprendimiento> entity = emprendimientoService.editarPorId(id);
-        if (entity.isPresent()){
-            Emprendimiento emprendimientoActual = entity.get();
-            emprendimientoActual.setNombre(emprendimiento.getNombre());
-            emprendimientoActual.setDescripcion(emprendimiento.getDescripcion());
-            emprendimientoActual.setTipo(emprendimiento.getTipo());
-            emprendimientoActual.setFecha_creacion(emprendimiento.getFecha_creacion());
-            emprendimientoActual.setEstado_emprendimiento(emprendimiento.getEstado_emprendimiento());
-            if (imagenFile != null && !imagenFile.isEmpty()){
-                try {
-                    emprendimientoActual.setImagen_emprendimiento(imagenFile.getBytes());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
-            }
-            emprendimientoActual.setIdregiones(emprendimiento.getIdregiones());
-            emprendimientoActual.setIdusuarios(emprendimiento.getIdusuarios());
-            return ResponseEntity.ok(emprendimientoService.guardar(emprendimientoActual));
-        } else {
+
+        Optional<Emprendimiento> entity = emprendimientoService.obtenerPorId(id);
+
+        if (entity.isEmpty()) {
             System.out.println("No se encontró el emprendimiento con id " + id);
             return ResponseEntity.badRequest().build();
         }
+
+        Emprendimiento emprendimientoActual = entity.get();
+        emprendimientoActual.setNombre(emprendimiento.getNombre());
+        emprendimientoActual.setDescripcion(emprendimiento.getDescripcion());
+        emprendimientoActual.setTipo(emprendimiento.getTipo());
+        emprendimientoActual.setFecha_creacion(emprendimiento.getFecha_creacion());
+        emprendimientoActual.setEstado_emprendimiento(emprendimiento.getEstado_emprendimiento());
+        emprendimientoActual.setIdregiones(emprendimiento.getIdregiones());
+        emprendimientoActual.setIdusuarios(emprendimiento.getIdusuarios());
+
+        if (imagenFile != null && !imagenFile.isEmpty()) {
+            try {
+                emprendimientoActual.setImagen_emprendimiento(imagenFile.getBytes());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        return ResponseEntity.ok(emprendimientoService.guardar(emprendimientoActual));
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
