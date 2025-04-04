@@ -2,6 +2,8 @@ package com.example.proyectotalentotech.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -21,13 +23,13 @@ public class Emprendimiento {
     @Column(nullable = false)
     private String tipo;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fecha_creacion;
+    @Temporal(TemporalType.DATE)
+    private LocalDate fecha_creacion;
 
     @Column(nullable = false)
     private Boolean estado_emprendimiento;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "LONGBLOB")
     private byte[] imagen_emprendimiento;
 
     @Column(nullable = false)
