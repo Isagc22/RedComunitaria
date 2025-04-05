@@ -51,5 +51,15 @@ public class EmprendimientoService {
     public List<Map<String, Object>> getPorcentajeEmprendimientosPorRegion() {
         return emprendimientoRepository.getPorcentajeEmprendimientosPorRegion();
     }
+    
+    /**
+     * Obtiene los emprendimientos pertenecientes a un usuario específico.
+     * 
+     * @param userId El ID del usuario
+     * @return Lista de emprendimientos del usuario
+     */
+    public List<Emprendimiento> obtenerPorUsuarioId(Integer userId) {
+        return emprendimientoRepository.findByIdusuarios(userId);
+    }
 }
 

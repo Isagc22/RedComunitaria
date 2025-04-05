@@ -14,6 +14,18 @@ import java.util.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Controlador REST para la gestión de datos de producción y consumo de energía.
+ * <p>
+ * Esta clase proporciona endpoints para registrar y consultar datos sobre la producción
+ * y consumo de energía de los emprendimientos, permitiendo visualizar estadísticas y 
+ * realizar seguimiento del uso energético a lo largo del tiempo.
+ * </p>
+ * 
+ * @author Equipo RedComunitaria
+ * @version 1.0
+ * @since 2023-03-30
+ */
 @RestController
 @RequestMapping("/api/produccion-consumo")
 @CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST})
@@ -21,11 +33,28 @@ public class ProduccionConsumoEnergiaController {
 
     private final ProduccionConsumoEnergiaServices produccionConsumoEnergiaServices;
 
+    /**
+     * Constructor para la inyección de dependencias.
+     * 
+     * @param produccionConsumoEnergiaServices Servicio para la gestión de datos de producción y consumo de energía
+     */
     @Autowired
     public ProduccionConsumoEnergiaController(ProduccionConsumoEnergiaServices produccionConsumoEnergiaServices) {
         this.produccionConsumoEnergiaServices = produccionConsumoEnergiaServices;
     }
 
+    /**
+     * Registra nuevos datos de producción y consumo de energía para un emprendimiento.
+     * <p>
+     * Este endpoint recibe un DTO con información sobre la energía producida y consumida
+     * por un emprendimiento en una fecha específica, así como detalles sobre la fuente
+     * de energía y observaciones adicionales.
+     * </p>
+     * 
+     * @param dto Objeto DTO con los datos de producción y consumo
+     * @param authentication Objeto de autenticación del usuario que realiza el registro
+     * @return ResponseEntity con mensaje de éxito y el ID del registro creado, o un mensaje de error
+     */
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarDatos(@RequestBody ProduccionConsumoDto dto, Authentication authentication) {
         try {
@@ -64,6 +93,18 @@ public class ProduccionConsumoEnergiaController {
         }
     }
 
+    /**
+     * Recupera datos de producción y consumo de energía para un emprendimiento específico.
+     * <p>
+     * Este endpoint permite consultar los datos de energía de un emprendimiento en un período
+     * de tiempo determinado (semana, mes, trimestre o año). Si no hay datos disponibles,
+     * devuelve datos de ejemplo para visualización.
+     * </p>
+     * 
+     * @param emprendimientoId Identificador del emprendimiento
+     * @param filtro Período de tiempo para filtrar los datos (semana, mes, trimestre, anio)
+     * @return ResponseEntity con los datos de energía formateados para visualización en gráficos
+     */
     @GetMapping("/datos/{emprendimientoId}")
     public ResponseEntity<?> obtenerDatosPorEmprendimiento(
             @PathVariable Long emprendimientoId,
@@ -135,7 +176,16 @@ public class ProduccionConsumoEnergiaController {
         }
     }
     
-    // Método para generar datos de ejemplo
+    /**
+     * Genera datos de ejemplo para visualización cuando no hay datos reales disponibles.
+     * <p>
+     * Este método privado crea conjuntos de datos ficticios según el período solicitado,
+     * permitiendo mostrar ejemplos visuales de cómo se representarían los datos reales.
+     * </p>
+     * 
+     * @param filtro Período de tiempo para el cual generar datos (semana, mes, trimestre, anio)
+     * @return Mapa con datos de ejemplo formateados para visualización en gráficos
+     */
     private Map<String, Object> generarDatosEjemplo(String filtro) {
         List<String> fechas = new ArrayList<>();
         List<Double> produccion = new ArrayList<>();

@@ -13,6 +13,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controlador REST para la gestión de datos personales de los usuarios.
+ * <p>
+ * Esta clase proporciona endpoints para crear, leer, actualizar y eliminar
+ * datos personales, así como funcionalidades específicas como la carga de imágenes
+ * de perfil y la búsqueda de datos por usuario.
+ * </p>
+ * 
+ * @author Equipo RedComunitaria
+ * @version 1.0
+ * @since 2023-03-30
+ */
 @RestController
 @RequestMapping("/datosPersonales")
 public class DatosPersonalesController {
@@ -21,6 +33,13 @@ public class DatosPersonalesController {
     private final UsuarioService usuarioService;
     private final TipoDocumentoService tipoDocumentoService;
 
+    /**
+     * Constructor del controlador que recibe los servicios necesarios mediante inyección de dependencias.
+     * 
+     * @param datosPersonalesService Servicio para la gestión de datos personales
+     * @param usuarioService Servicio para la gestión de usuarios
+     * @param tipoDocumentoService Servicio para la gestión de tipos de documento
+     */
     public DatosPersonalesController(DatosPersonalesService datosPersonalesService,
                                      UsuarioService usuarioService,
                                      TipoDocumentoService tipoDocumentoService) {
@@ -29,7 +48,22 @@ public class DatosPersonalesController {
         this.tipoDocumentoService = tipoDocumentoService;
     }
 
-    // Nuevo método que acepta multipart/form-data
+    /**
+     * Crea un nuevo registro de datos personales con soporte para carga de imágenes.
+     * <p>
+     * Este endpoint acepta datos de formulario multipart, permitiendo la carga de una
+     * imagen de perfil opcional junto con los datos personales del usuario.
+     * </p>
+     * 
+     * @param nombreCompleto Nombre completo del usuario
+     * @param cedula Número de cédula o documento de identidad
+     * @param direccion Dirección física del usuario
+     * @param telefono Número telefónico de contacto
+     * @param idusuarios ID del usuario asociado a estos datos personales
+     * @param idtipodocumento ID del tipo de documento
+     * @param imagen Archivo de imagen de perfil (opcional)
+     * @return ResponseEntity con los datos personales creados o un mensaje de error
+     */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DatosPersonales> crearDatosPersonales(
             @RequestParam("nombre_completo") String nombreCompleto,
@@ -74,7 +108,11 @@ public class DatosPersonalesController {
         return ResponseEntity.ok(datosGuardados);
     }
 
-    // Métodos existentes sin cambios
+    /**
+     * Obtiene la lista de todos los datos personales registrados en el sistema.
+     * 
+     * @return ResponseEntity con la lista de datos personales o un mensaje de error si la lista está vacía
+     */
     @GetMapping
     public ResponseEntity<List<DatosPersonales>> listarTodos() {
         List<DatosPersonales> lista = datosPersonalesService.listarTodos();
@@ -86,6 +124,12 @@ public class DatosPersonalesController {
         return ResponseEntity.ok(lista);
     }
 
+    /**
+     * Obtiene los datos personales correspondientes al ID proporcionado.
+     * 
+     * @param id Identificador único de los datos personales
+     * @return ResponseEntity con los datos personales encontrados o un mensaje de error
+     */
     @GetMapping("/{id}")
     public ResponseEntity<DatosPersonales> obtenerPorId(@PathVariable Integer id) {
         Optional<DatosPersonales> entity = datosPersonalesService.obtenerPorId(id);
@@ -96,7 +140,23 @@ public class DatosPersonalesController {
         return ResponseEntity.ok(entity.get());
     }
 
-
+    /**
+     * Actualiza los datos personales existentes con soporte para actualización de imagen.
+     * <p>
+     * Este endpoint acepta datos de formulario multipart, permitiendo la actualización de
+     * la imagen de perfil junto con los demás datos personales.
+     * </p>
+     * 
+     * @param id Identificador único de los datos personales a actualizar
+     * @param nombreCompleto Nuevo nombre completo del usuario
+     * @param cedula Nuevo número de cédula o documento de identidad
+     * @param direccion Nueva dirección física del usuario
+     * @param telefono Nuevo número telefónico de contacto
+     * @param idusuarios ID del usuario asociado a estos datos personales
+     * @param idtipodocumento ID del tipo de documento
+     * @param imagen Nuevo archivo de imagen de perfil (opcional)
+     * @return ResponseEntity con los datos personales actualizados o un mensaje de error
+     */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<DatosPersonales> editarPorIdMultipart(
             @PathVariable Integer id,
@@ -142,7 +202,12 @@ public class DatosPersonalesController {
         }
     }
 
-
+    /**
+     * Elimina los datos personales correspondientes al ID proporcionado.
+     * 
+     * @param id Identificador único de los datos personales a eliminar
+     * @return ResponseEntity sin contenido (204) si la eliminación fue exitosa o un mensaje de error
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         if (!datosPersonalesService.obtenerPorId(id).isPresent()) {
@@ -153,10 +218,32 @@ public class DatosPersonalesController {
         return ResponseEntity.noContent().build();
     }
 
-
+    /**
+     * Obtiene los datos personales correspondientes al usuario proporcionado.
+     * <p>
+     * Este endpoint permite buscar datos personales por el ID del usuario asociado,
+     * facilitando la recuperación de información personal desde el perfil de usuario.
+     * </p>
+     * 
+     * @param idusuarios Identificador del usuario cuyos datos personales se desean obtener
+     * @return ResponseEntity con los datos personales encontrados o un mensaje de error
+     */
     @GetMapping("/usuario/{idusuarios}")
     public ResponseEntity<DatosPersonales> obtenerPorUsuario(@PathVariable Integer idusuarios) {
-        Optional<DatosPersonales> datos = datosPersonalesService.obtenerPorIdUsuario(idusuarios);
-        return datos.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        try {
+            System.out.println("Buscando datos personales para el usuario con ID: " + idusuarios);
+            Optional<DatosPersonales> datos = datosPersonalesService.obtenerPorIdUsuario(idusuarios);
+            if (datos.isPresent()) {
+                System.out.println("Datos personales encontrados para el usuario con ID: " + idusuarios);
+                return ResponseEntity.ok(datos.get());
+            } else {
+                System.out.println("No se encontraron datos personales para el usuario con ID: " + idusuarios);
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            System.err.println("Error al obtener datos personales para el usuario con ID " + idusuarios + ": " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

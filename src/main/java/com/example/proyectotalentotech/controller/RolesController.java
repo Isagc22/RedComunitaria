@@ -11,6 +11,19 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controlador REST para la gestión de roles de usuario.
+ * <p>
+ * Esta clase proporciona endpoints para realizar operaciones CRUD 
+ * (Crear, Leer, Actualizar, Eliminar) sobre los roles que pueden
+ * ser asignados a los usuarios en el sistema, estableciendo sus
+ * permisos y capacidades.
+ * </p>
+ * 
+ * @author Equipo RedComunitaria
+ * @version 1.0
+ * @since 2023-03-30
+ */
 @RestController
 @RequestMapping("/roles")
 public class RolesController {
@@ -19,12 +32,29 @@ public class RolesController {
     private final UsuarioService usuarioService;
     private final TipoDocumentoService tipoDocumentoService;
 
+    /**
+     * Constructor para la inyección de dependencias.
+     * 
+     * @param rolesService Servicio para la gestión de roles
+     * @param usuarioService Servicio para la gestión de usuarios
+     * @param tipoDocumentoService Servicio para la gestión de tipos de documento
+     */
     public RolesController(RolesService rolesService, UsuarioService usuarioService, TipoDocumentoService tipoDocumentoService) {
         this.rolesService = rolesService;
         this.usuarioService = usuarioService;
         this.tipoDocumentoService = tipoDocumentoService;
     }
 
+    /**
+     * Crea un nuevo rol en el sistema.
+     * <p>
+     * Verifica que tanto el usuario como el tipo de documento asociados existan
+     * antes de crear el rol.
+     * </p>
+     * 
+     * @param rol El objeto Roles a crear
+     * @return ResponseEntity con el rol creado o un error si las validaciones fallan
+     */
     @PostMapping
     public ResponseEntity<Roles> crear(@RequestBody Roles rol) {
         if (!usuarioService.obtenerPorId(rol.getIdusuarios()).isPresent()) {
@@ -40,6 +70,11 @@ public class RolesController {
         return ResponseEntity.ok(rolesService.guardar(rol));
     }
 
+    /**
+     * Obtiene la lista de todos los roles registrados en el sistema.
+     * 
+     * @return ResponseEntity con la lista de roles o un error si la lista está vacía
+     */
     @GetMapping
     public ResponseEntity<List<Roles>> listarTodos() {
         List<Roles> lista = rolesService.listarTodos();
@@ -50,6 +85,12 @@ public class RolesController {
         return ResponseEntity.ok(lista);
     }
 
+    /**
+     * Busca un rol por su identificador único.
+     * 
+     * @param id El identificador del rol a buscar
+     * @return ResponseEntity con el rol si se encuentra, o notFound si no existe
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Roles> obtenerPorId(@PathVariable Integer id) {
         Optional<Roles> entity = rolesService.obtenerPorId(id);
@@ -60,6 +101,17 @@ public class RolesController {
         return ResponseEntity.ok(entity.get());
     }
 
+    /**
+     * Actualiza un rol existente.
+     * <p>
+     * Permite actualizar las fechas de creación y modificación, así como
+     * el usuario y tipo de usuario asociados al rol.
+     * </p>
+     * 
+     * @param id El identificador del rol a actualizar
+     * @param rol El objeto Roles con los nuevos datos
+     * @return ResponseEntity con el rol actualizado, o notFound si no existe
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Roles> actualizar(@PathVariable Integer id, @RequestBody Roles rol) {
         Optional<Roles> entity = rolesService.editarPorId(id);
@@ -75,6 +127,12 @@ public class RolesController {
         return ResponseEntity.notFound().build();
     }
 
+    /**
+     * Elimina un rol por su identificador único.
+     * 
+     * @param id El identificador del rol a eliminar
+     * @return ResponseEntity sin contenido (204) si la eliminación fue exitosa, o badRequest si no existe
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminar(@PathVariable Integer id) {
         if (!rolesService.obtenerPorId(id).isPresent()) {
