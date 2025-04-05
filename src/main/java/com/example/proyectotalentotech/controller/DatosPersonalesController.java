@@ -74,15 +74,26 @@ public class DatosPersonalesController {
             @RequestParam("idtipodocumento") Integer idtipodocumento,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen) {
 
+        // Añadir logs para depuración
+        System.out.println("============== SOLICITUD CREAR DATOS PERSONALES ==============");
+        System.out.println("Nombre completo: " + nombreCompleto);
+        System.out.println("Cédula: " + cedula);
+        System.out.println("Dirección: " + direccion);
+        System.out.println("Teléfono: " + telefono);
+        System.out.println("ID Usuario: " + idusuarios);
+        System.out.println("ID Tipo Documento: " + idtipodocumento);
+        System.out.println("Imagen presente: " + (imagen != null && !imagen.isEmpty()));
+        System.out.println("============================================================");
+
         // Verifica que el usuario exista
         if (!usuarioService.obtenerPorId(idusuarios).isPresent()) {
-            System.out.println("Usuario con id " + idusuarios + " no existe");
+            System.out.println("Error: Usuario con id " + idusuarios + " no existe");
             return ResponseEntity.badRequest().body(null);
         }
 
         // Verifica que el tipo de documento exista
         if (!tipoDocumentoService.obtenerPorId(idtipodocumento).isPresent()) {
-            System.out.println("Tipo de documento con id " + idtipodocumento + " no existe");
+            System.out.println("Error: Tipo de documento con id " + idtipodocumento + " no existe");
             return ResponseEntity.badRequest().body(null);
         }
 
@@ -98,14 +109,22 @@ public class DatosPersonalesController {
         if (imagen != null && !imagen.isEmpty()) {
             try {
                 datos.setImagen(imagen.getBytes());
+                System.out.println("Imagen procesada correctamente, tamaño: " + imagen.getSize() + " bytes");
             } catch (IOException e) {
                 System.out.println("Error al procesar la imagen: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
 
-        DatosPersonales datosGuardados = datosPersonalesService.guardar(datos);
-        return ResponseEntity.ok(datosGuardados);
+        try {
+            DatosPersonales datosGuardados = datosPersonalesService.guardar(datos);
+            System.out.println("Datos personales guardados correctamente con ID: " + datosGuardados.getIddatospersonales());
+            return ResponseEntity.ok(datosGuardados);
+        } catch (Exception e) {
+            System.out.println("Error al guardar datos personales: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     /**
@@ -223,27 +242,70 @@ public class DatosPersonalesController {
      * <p>
      * Este endpoint permite buscar datos personales por el ID del usuario asociado,
      * facilitando la recuperación de información personal desde el perfil de usuario.
+     * Si el usuario no tiene datos personales registrados, se intentará crear un registro
+     * básico para permitir la edición.
      * </p>
      * 
      * @param idusuarios Identificador del usuario cuyos datos personales se desean obtener
-     * @return ResponseEntity con los datos personales encontrados o un mensaje de error
+     * @return ResponseEntity con los datos personales encontrados o creados, o un mensaje de error
      */
     @GetMapping("/usuario/{idusuarios}")
-    public ResponseEntity<DatosPersonales> obtenerPorUsuario(@PathVariable Integer idusuarios) {
+    public ResponseEntity<?> obtenerPorUsuario(@PathVariable Integer idusuarios) {
         try {
-            System.out.println("Buscando datos personales para el usuario con ID: " + idusuarios);
+            System.out.println("Intentando obtener datos para el usuario con ID: " + idusuarios);
+            
+            // Verificar primero si el usuario existe
+            if (!usuarioService.obtenerPorId(idusuarios).isPresent()) {
+                System.out.println("El usuario con ID " + idusuarios + " no existe");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse("Usuario no encontrado", "El usuario con ID " + idusuarios + " no existe en el sistema"));
+            }
+            
+            // Obtener o crear datos personales para este usuario
             Optional<DatosPersonales> datos = datosPersonalesService.obtenerPorIdUsuario(idusuarios);
+            
             if (datos.isPresent()) {
-                System.out.println("Datos personales encontrados para el usuario con ID: " + idusuarios);
+                System.out.println("Datos personales encontrados/creados para el usuario con ID: " + idusuarios);
                 return ResponseEntity.ok(datos.get());
             } else {
-                System.out.println("No se encontraron datos personales para el usuario con ID: " + idusuarios);
-                return ResponseEntity.notFound().build();
+                System.out.println("No se pudieron obtener ni crear datos personales para el usuario con ID: " + idusuarios);
+                
+                // Devolver un objeto vacío con el ID del usuario para que el frontend pueda manejarlo
+                DatosPersonales datosVacios = new DatosPersonales();
+                datosVacios.setIdusuarios(idusuarios);
+                datosVacios.setNombre_completo("");
+                datosVacios.setCedula("");
+                datosVacios.setDireccion("");
+                datosVacios.setTelefono("");
+                
+                return ResponseEntity.ok(datosVacios);
             }
         } catch (Exception e) {
             System.err.println("Error al obtener datos personales para el usuario con ID " + idusuarios + ": " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Error interno", "Ocurrió un error al procesar la solicitud: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Clase auxiliar para devolver respuestas de error estructuradas
+     */
+    private static class ErrorResponse {
+        private final String error;
+        private final String message;
+
+        public ErrorResponse(String error, String message) {
+            this.error = error;
+            this.message = message;
+        }
+
+        public String getError() {
+            return error;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }

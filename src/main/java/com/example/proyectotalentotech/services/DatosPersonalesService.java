@@ -1,9 +1,9 @@
 package com.example.proyectotalentotech.services;
 
 import com.example.proyectotalentotech.model.DatosPersonales;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.example.proyectotalentotech.repository.DatosPersonalesRepository;
+import com.example.proyectotalentotech.repository.UsuarioRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,15 +23,18 @@ import java.util.Optional;
 public class DatosPersonalesService {
 
     private final DatosPersonalesRepository datosPersonalesRepository;
+    private final UsuarioRepository usuarioRepository;
     
     /**
-     * Constructor del servicio que recibe el repositorio de datos personales mediante inyección de dependencias.
+     * Constructor del servicio que recibe el repositorio de datos personales y el repositorio de usuarios mediante inyección de dependencias.
      * 
      * @param datosPersonalesRepository Repositorio para acceder a los datos personales
+     * @param usuarioRepository Repositorio para acceder a los usuarios
      */
-    @Autowired
-    public DatosPersonalesService(DatosPersonalesRepository datosPersonalesRepository) {
+    public DatosPersonalesService(DatosPersonalesRepository datosPersonalesRepository, 
+                                 UsuarioRepository usuarioRepository) {
         this.datosPersonalesRepository = datosPersonalesRepository;
+        this.usuarioRepository = usuarioRepository;
     }
     
     /**
@@ -72,24 +75,46 @@ public class DatosPersonalesService {
      * registro de logs para facilitar la depuración.
      * </p>
      * 
-     * @param idusuarios ID del usuario del que se quieren obtener los datos personales
-     * @return Optional con los datos personales si se encontraron
+     * @param idUsuario el ID del usuario
+     * @return Optional con los datos personales encontrados o creados
      */
-    public Optional<DatosPersonales> obtenerPorIdUsuario(Integer idusuarios) {
-        try {
-            System.out.println("Servicio - Buscando datos personales para usuario ID: " + idusuarios);
-            Optional<DatosPersonales> datos = datosPersonalesRepository.findByIdusuarios(idusuarios);
-            if (datos.isPresent()) {
-                System.out.println("Servicio - Datos personales encontrados para usuario ID: " + idusuarios);
-            } else {
-                System.out.println("Servicio - No se encontraron datos personales para usuario ID: " + idusuarios);
-            }
+    public Optional<DatosPersonales> obtenerPorIdUsuario(Integer idUsuario) {
+        // Primero intentamos buscar por el ID de usuario
+        Optional<DatosPersonales> datos = datosPersonalesRepository.findByIdusuarios(idUsuario);
+        
+        // Si existen datos, los devolvemos
+        if (datos.isPresent()) {
+            System.out.println("Datos personales encontrados para el usuario ID: " + idUsuario);
             return datos;
-        } catch (Exception e) {
-            System.err.println("Servicio - Error al buscar datos personales para usuario ID " + idusuarios + ": " + e.getMessage());
-            e.printStackTrace();
-            return Optional.empty();
         }
+        
+        // Si no existen datos pero el usuario existe, creamos un registro básico
+        if (usuarioRepository.findById(idUsuario).isPresent()) {
+            System.out.println("Creando registro de datos personales básico para el usuario ID: " + idUsuario);
+            
+            // Creamos un objeto con datos básicos
+            DatosPersonales nuevosDatos = new DatosPersonales();
+            nuevosDatos.setIdusuarios(idUsuario);
+            nuevosDatos.setNombre_completo("");
+            nuevosDatos.setCedula("");
+            nuevosDatos.setDireccion("");
+            nuevosDatos.setTelefono("");
+            // Usando un ID de tipo de documento por defecto (ajustar según la base de datos)
+            nuevosDatos.setIdtipodocumento(1);
+            
+            // Guardamos el nuevo registro
+            try {
+                DatosPersonales guardado = datosPersonalesRepository.save(nuevosDatos);
+                return Optional.of(guardado);
+            } catch (Exception e) {
+                System.err.println("Error al crear datos personales básicos: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("No se encontró el usuario con ID: " + idUsuario);
+        }
+        
+        return Optional.empty();
     }
     
     /**

@@ -121,4 +121,20 @@ public class ProduccionConsumoEnergia {
     protected void onCreate() {
         fechaRegistro = LocalDateTime.now();
     }
+
+    /**
+     * Obtiene el valor de producción para mantener compatibilidad con el frontend.
+     * @return Valor de energía producida
+     */
+    public Double getProduccion() {
+        return this.energiaProducida;
+    }
+    
+    /**
+     * Obtiene el valor de consumo para mantener compatibilidad con el frontend.
+     * @return Valor de energía consumida
+     */
+    public Double getConsumo() {
+        return this.energiaConsumida;
+    }
 }

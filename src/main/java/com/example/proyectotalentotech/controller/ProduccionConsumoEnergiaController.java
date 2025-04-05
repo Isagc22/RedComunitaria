@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,8 +29,8 @@ import java.time.temporal.ChronoUnit;
  * @since 2023-03-30
  */
 @RestController
-@RequestMapping("/api/produccion-consumo")
-@CrossOrigin(origins = "*", methods = {RequestMethod.GET, RequestMethod.POST})
+@RequestMapping("/produccionconsumoenergia")
+@CrossOrigin(origins = "*")
 public class ProduccionConsumoEnergiaController {
 
     private final ProduccionConsumoEnergiaServices produccionConsumoEnergiaServices;
@@ -44,52 +46,227 @@ public class ProduccionConsumoEnergiaController {
     }
 
     /**
-     * Registra nuevos datos de producción y consumo de energía para un emprendimiento.
-     * <p>
-     * Este endpoint recibe un DTO con información sobre la energía producida y consumida
-     * por un emprendimiento en una fecha específica, así como detalles sobre la fuente
-     * de energía y observaciones adicionales.
-     * </p>
+     * Endpoint de verificación de salud del servicio.
+     * Se utiliza para confirmar que el servicio está disponible.
      * 
-     * @param dto Objeto DTO con los datos de producción y consumo
-     * @param authentication Objeto de autenticación del usuario que realiza el registro
-     * @return ResponseEntity con mensaje de éxito y el ID del registro creado, o un mensaje de error
+     * @return ResponseEntity con un mensaje de confirmación
      */
-    @PostMapping("/registrar")
-    public ResponseEntity<?> registrarDatos(@RequestBody ProduccionConsumoDto dto, Authentication authentication) {
+    @GetMapping("/health-check")
+    public ResponseEntity<Map<String, Object>> healthCheck() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "UP");
+        response.put("message", "Servicio de producción y consumo de energía disponible");
+        response.put("timestamp", new Date());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Obtiene datos de producción y consumo de energía con filtros opcionales.
+     *
+     * @param emprendimientoId ID del emprendimiento (opcional)
+     * @param fechaDesde Fecha de inicio para filtrar (opcional)
+     * @param fechaHasta Fecha de fin para filtrar (opcional)
+     * @return Lista de datos de producción y consumo que coinciden con los criterios
+     */
+    @GetMapping("/datos")
+    public ResponseEntity<?> obtenerDatos(
+            @RequestParam(required = false) Long emprendimientoId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaDesde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaHasta) {
+
         try {
-            System.out.println("Recibiendo datos para registrar: " + dto);
-            
-            ProduccionConsumoEnergia entidad = new ProduccionConsumoEnergia();
-            entidad.setEmprendimientoId(dto.getEmprendimientoId());
-            entidad.setFecha(LocalDate.parse(dto.getFecha()));
-            entidad.setEnergiaProducida(dto.getEnergiaProducida());
-            entidad.setEnergiaConsumida(dto.getEnergiaConsumida());
-            entidad.setFuenteEnergia(dto.getFuenteEnergia());
-            entidad.setObservaciones(dto.getObservaciones());
-            
-            // Si hay autenticación, usar el nombre del usuario, de lo contrario usar un valor por defecto
-            if (authentication != null) {
-                entidad.setUsuarioRegistro(authentication.getName());
+            List<ProduccionConsumoEnergia> datos;
+
+            // Aplicar filtros según los parámetros proporcionados
+            if (emprendimientoId != null && fechaDesde != null && fechaHasta != null) {
+                datos = produccionConsumoEnergiaServices.obtenerPorEmprendimientoYRangoFechas(
+                        emprendimientoId, fechaDesde, fechaHasta);
+            } else if (emprendimientoId != null) {
+                datos = produccionConsumoEnergiaServices.obtenerPorEmprendimiento(emprendimientoId);
+            } else if (fechaDesde != null && fechaHasta != null) {
+                datos = produccionConsumoEnergiaServices.obtenerPorRangoFechas(fechaDesde, fechaHasta);
             } else {
-                entidad.setUsuarioRegistro("usuario_default");
+                datos = produccionConsumoEnergiaServices.obtenerTodos();
+            }
+
+            if (datos.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("mensaje", "No se encontraron datos con los criterios especificados"));
+            }
+
+            return ResponseEntity.ok(datos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al obtener los datos: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Obtiene un resumen de la producción y consumo para todos los emprendimientos.
+     *
+     * @return Resumen de producción y consumo
+     */
+    @GetMapping("/resumen")
+    public ResponseEntity<?> obtenerResumen() {
+        try {
+            List<Map<String, Object>> resumen = produccionConsumoEnergiaServices.obtenerResumenProduccionConsumo();
+            
+            if (resumen.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("mensaje", "No se encontraron datos para generar el resumen"));
             }
             
-            // Establecer la fecha de registro
-            entidad.setFechaRegistro(LocalDateTime.now());
+            return ResponseEntity.ok(resumen);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al obtener el resumen: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Convierte los datos del modelo a un formato que el frontend pueda procesar fácilmente.
+     */
+    private List<Map<String, Object>> convertirAFormatoFrontend(List<ProduccionConsumoEnergia> datos) {
+        List<Map<String, Object>> resultado = new ArrayList<>();
+        
+        for (ProduccionConsumoEnergia dato : datos) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", dato.getId());
+            item.put("fecha", dato.getFecha().toString());
+            item.put("produccion", dato.getEnergiaProducida());
+            item.put("consumo", dato.getEnergiaConsumida());
+            item.put("emprendimientoId", dato.getEmprendimientoId());
+            item.put("fuenteEnergia", dato.getFuenteEnergia());
+            item.put("observaciones", dato.getObservaciones());
+            resultado.add(item);
+        }
+        
+        return resultado;
+    }
+
+    /**
+     * Genera una lista completa de datos de ejemplo para todo un año.
+     */
+    private List<ProduccionConsumoEnergia> generarDatosEjemploCompleto() {
+        List<ProduccionConsumoEnergia> datos = new ArrayList<>();
+        LocalDate fechaInicio = LocalDate.now().minusYears(1);
+        
+        Random random = new Random();
+        
+        // Generar datos para los últimos 12 meses
+        for (int i = 0; i < 365; i += 7) { // Datos semanales
+            LocalDate fecha = fechaInicio.plusDays(i);
             
-            ProduccionConsumoEnergia guardado = produccionConsumoEnergiaServices.guardar(entidad);
+            // Simular producción y consumo con variación estacional
+            int mes = fecha.getMonthValue();
+            double factorEstacional = (mes >= 5 && mes <= 9) ? 1.3 : 0.8; // Mayor en verano
             
-            Map<String, Object> response = new HashMap<>();
-            response.put("mensaje", "Datos registrados correctamente");
-            response.put("id", guardado.getId());
+            double produccion = 50 + random.nextDouble() * 50 * factorEstacional;
+            double consumo = 70 + random.nextDouble() * 40 * (2 - factorEstacional);
             
-            return ResponseEntity.ok(response);
+            ProduccionConsumoEnergia dato = new ProduccionConsumoEnergia();
+            dato.setId((long) (i + 1));
+            dato.setFecha(fecha);
+            dato.setEnergiaProducida(Math.round(produccion * 100) / 100.0);
+            dato.setEnergiaConsumida(Math.round(consumo * 100) / 100.0);
+            dato.setEmprendimientoId(6L); // ID de ejemplo
+            dato.setFuenteEnergia("Solar");
+            dato.setFechaRegistro(LocalDateTime.now());
+            dato.setUsuarioRegistro("sistema");
+            
+            datos.add(dato);
+        }
+        
+        return datos;
+    }
+
+    /**
+     * Registra un nuevo dato de producción y consumo de energía.
+     *
+     * @param produccionConsumo Datos de producción y consumo a registrar
+     * @return Respuesta con los datos registrados
+     */
+    @PostMapping
+    public ResponseEntity<?> registrarDatos(@RequestBody Map<String, Object> datos) {
+        try {
+            // Depurar los datos recibidos
+            System.out.println("Datos recibidos para registro: " + datos);
+            
+            ProduccionConsumoEnergia produccionConsumo = new ProduccionConsumoEnergia();
+            
+            // Extraer y convertir campos recibidos
+            // Manejar el ID del emprendimiento
+            if (datos.containsKey("idemprendimiento")) {
+                produccionConsumo.setEmprendimientoId(Long.valueOf(datos.get("idemprendimiento").toString()));
+            } else if (datos.containsKey("emprendimientoId")) {
+                produccionConsumo.setEmprendimientoId(Long.valueOf(datos.get("emprendimientoId").toString()));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "El ID del emprendimiento es requerido"));
+            }
+            
+            // Manejar energía producida
+            if (datos.containsKey("produccion_energia")) {
+                produccionConsumo.setEnergiaProducida(Double.valueOf(datos.get("produccion_energia").toString()));
+            } else if (datos.containsKey("energiaProducida")) {
+                produccionConsumo.setEnergiaProducida(Double.valueOf(datos.get("energiaProducida").toString()));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "La producción de energía es requerida"));
+            }
+            
+            // Manejar energía consumida
+            if (datos.containsKey("consumo_energia")) {
+                produccionConsumo.setEnergiaConsumida(Double.valueOf(datos.get("consumo_energia").toString()));
+            } else if (datos.containsKey("energiaConsumida")) {
+                produccionConsumo.setEnergiaConsumida(Double.valueOf(datos.get("energiaConsumida").toString()));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("error", "El consumo de energía es requerido"));
+            }
+            
+            // Manejar fecha
+            if (datos.containsKey("fecha")) {
+                String fechaStr = datos.get("fecha").toString();
+                try {
+                    produccionConsumo.setFecha(LocalDate.parse(fechaStr));
+                } catch (Exception e) {
+                    System.out.println("Error al parsear fecha: " + fechaStr + ". Usando fecha actual.");
+                    produccionConsumo.setFecha(LocalDate.now());
+                }
+            } else {
+                produccionConsumo.setFecha(LocalDate.now());
+            }
+            
+            // Otros campos opcionales
+            if (datos.containsKey("fuente_energia")) {
+                produccionConsumo.setFuenteEnergia(datos.get("fuente_energia").toString());
+            } else if (datos.containsKey("fuenteEnergia")) {
+                produccionConsumo.setFuenteEnergia(datos.get("fuenteEnergia").toString());
+            }
+            
+            if (datos.containsKey("observaciones")) {
+                produccionConsumo.setObservaciones(datos.get("observaciones").toString());
+            }
+            
+            if (datos.containsKey("usuario_registro")) {
+                produccionConsumo.setUsuarioRegistro(datos.get("usuario_registro").toString());
+            } else if (datos.containsKey("usuarioRegistro")) {
+                produccionConsumo.setUsuarioRegistro(datos.get("usuarioRegistro").toString());
+            } else {
+                produccionConsumo.setUsuarioRegistro("sistema");
+            }
+            
+            // Fecha de registro (sistema)
+            produccionConsumo.setFechaRegistro(LocalDateTime.now());
+            
+            // Guardar los datos
+            ProduccionConsumoEnergia datosGuardados = produccionConsumoEnergiaServices.guardar(produccionConsumo);
+            
+            // Devolver una respuesta de éxito con los datos guardados
+            System.out.println("Datos guardados correctamente: " + datosGuardados);
+            return ResponseEntity.status(HttpStatus.CREATED).body(datosGuardados);
         } catch (Exception e) {
             e.printStackTrace();
-            Map<String, Object> error = new HashMap<>();
-            error.put("error", "Error al registrar datos: " + e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al registrar los datos: " + e.getMessage()));
         }
     }
 
@@ -215,5 +392,122 @@ public class ProduccionConsumoEnergiaController {
         resultado.put("mensaje", "Mostrando datos de ejemplo. No se encontraron registros para el período seleccionado.");
         
         return resultado;
+    }
+
+    /**
+     * Endpoint de filtrado simplificado para el frontend.
+     * Permite filtrar los datos por emprendimiento y rango de fechas con nombres
+     * de parámetros adaptados a la estructura de la base de datos.
+     *
+     * @param idemprendimiento ID del emprendimiento
+     * @param fechaInicio Fecha de inicio para el filtro
+     * @param fechaFin Fecha de fin para el filtro
+     * @return Lista de datos filtrados según los criterios
+     */
+    @GetMapping("/filtrar")
+    public ResponseEntity<?> filtrarDatos(
+            @RequestParam(required = false) Long idemprendimiento,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+
+        try {
+            List<ProduccionConsumoEnergia> datos;
+            
+            // Aplicar filtros según los parámetros proporcionados
+            if (idemprendimiento != null && fechaInicio != null && fechaFin != null) {
+                datos = produccionConsumoEnergiaServices.obtenerPorEmprendimientoYRangoFechas(
+                        idemprendimiento, fechaInicio, fechaFin);
+            } else if (idemprendimiento != null) {
+                datos = produccionConsumoEnergiaServices.obtenerPorEmprendimiento(idemprendimiento);
+            } else if (fechaInicio != null && fechaFin != null) {
+                datos = produccionConsumoEnergiaServices.obtenerPorRangoFechas(fechaInicio, fechaFin);
+            } else {
+                datos = produccionConsumoEnergiaServices.obtenerTodos();
+            }
+
+            if (datos.isEmpty()) {
+                // Si no hay datos reales, generar datos de ejemplo
+                datos = generarDatosEjemploCompleto();
+                
+                if (datos.isEmpty()) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .body(Map.of("mensaje", "No se encontraron datos con los criterios especificados"));
+                }
+            }
+
+            return ResponseEntity.ok(datos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al obtener los datos: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Consulta datos de producción y consumo de energía (endpoint POST para soportar formato JSON).
+     *
+     * @param datos Objeto con los filtros de búsqueda (fechaInicio, fechaFin, emprendimientoId)
+     * @return Lista de datos de producción y consumo que coinciden con los criterios
+     */
+    @PostMapping("/consultar")
+    public ResponseEntity<?> consultarDatos(@RequestBody Map<String, Object> datos) {
+        try {
+            System.out.println("Recibida consulta de datos de energía: " + datos);
+            
+            // Extraer filtros
+            Long emprendimientoId = null;
+            LocalDate fechaDesde = null;
+            LocalDate fechaHasta = null;
+            
+            if (datos.containsKey("emprendimientoId") && datos.get("emprendimientoId") != null) {
+                try {
+                    emprendimientoId = Long.valueOf(datos.get("emprendimientoId").toString());
+                } catch (Exception e) {
+                    System.out.println("Error al convertir emprendimientoId: " + e.getMessage());
+                }
+            }
+            
+            if (datos.containsKey("fechaInicio") && datos.get("fechaInicio") != null) {
+                try {
+                    fechaDesde = LocalDate.parse(datos.get("fechaInicio").toString());
+                } catch (Exception e) {
+                    System.out.println("Error al convertir fechaInicio: " + e.getMessage());
+                }
+            }
+            
+            if (datos.containsKey("fechaFin") && datos.get("fechaFin") != null) {
+                try {
+                    fechaHasta = LocalDate.parse(datos.get("fechaFin").toString());
+                } catch (Exception e) {
+                    System.out.println("Error al convertir fechaFin: " + e.getMessage());
+                }
+            }
+            
+            List<ProduccionConsumoEnergia> registros;
+            
+            // Aplicar filtros según los parámetros proporcionados
+            if (emprendimientoId != null && fechaDesde != null && fechaHasta != null) {
+                registros = produccionConsumoEnergiaServices.obtenerPorEmprendimientoYRangoFechas(
+                        emprendimientoId, fechaDesde, fechaHasta);
+            } else if (emprendimientoId != null) {
+                registros = produccionConsumoEnergiaServices.obtenerPorEmprendimiento(emprendimientoId);
+            } else if (fechaDesde != null && fechaHasta != null) {
+                registros = produccionConsumoEnergiaServices.obtenerPorRangoFechas(fechaDesde, fechaHasta);
+            } else {
+                registros = produccionConsumoEnergiaServices.obtenerTodos();
+            }
+            
+            if (registros.isEmpty()) {
+                // Si no hay datos, generar datos de ejemplo
+                System.out.println("No se encontraron datos para los filtros especificados. Generando datos de ejemplo.");
+                return ResponseEntity.ok(convertirAFormatoFrontend(generarDatosEjemploCompleto()));
+            }
+            
+            return ResponseEntity.ok(convertirAFormatoFrontend(registros));
+        } catch (Exception e) {
+            System.out.println("Error en consultarDatos: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al consultar los datos: " + e.getMessage()));
+        }
     }
 }

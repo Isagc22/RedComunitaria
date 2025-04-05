@@ -3,6 +3,7 @@ package com.example.proyectotalentotech.repository;
 import com.example.proyectotalentotech.model.ProduccionConsumoEnergia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -10,58 +11,45 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Repositorio para la entidad ProduccionConsumoEnergia.
- * <p>
- * Esta interfaz proporciona métodos para acceder y manipular datos de producción y consumo
- * de energía en la base de datos, incluyendo operaciones CRUD heredadas de JpaRepository y
- * consultas especializadas para análisis de datos energéticos por emprendimiento y fechas.
- * </p>
- * 
- * @author Equipo RedComunitaria
- * @version 1.0
- * @since 2023-03-30
+ * Repositorio para acceder a los datos de producción y consumo de energía.
  */
 @Repository
 public interface ProduccionConsumoEnergiaRepository extends JpaRepository<ProduccionConsumoEnergia, Long> {
+
+    /**
+     * Busca registros por ID de emprendimiento
+     */
+    List<ProduccionConsumoEnergia> findByEmprendimientoId(Long emprendimientoId);
     
     /**
-     * Busca registros de producción y consumo de energía para un emprendimiento específico
-     * dentro de un rango de fechas, ordenados ascendentemente por fecha.
-     * <p>
-     * Este método permite filtrar los datos energéticos por emprendimiento y período de tiempo,
-     * facilitando el análisis temporal del comportamiento energético de un emprendimiento.
-     * </p>
-     * 
-     * @param emprendimientoId Identificador del emprendimiento
-     * @param fechaDesde Fecha de inicio del rango de búsqueda (inclusive)
-     * @param fechaHasta Fecha de fin del rango de búsqueda (inclusive)
-     * @return Lista de registros de producción y consumo que cumplen los criterios, ordenados por fecha ascendente
+     * Busca registros en un rango de fechas
+     */
+    List<ProduccionConsumoEnergia> findByFechaBetween(LocalDate fechaInicio, LocalDate fechaFin);
+    
+    /**
+     * Busca registros por ID de emprendimiento y rango de fechas ordenados cronológicamente
+     */
+    List<ProduccionConsumoEnergia> findByEmprendimientoIdAndFechaBetween(
+            Long emprendimientoId, LocalDate fechaInicio, LocalDate fechaFin);
+    
+    /**
+     * Busca registros por ID de emprendimiento y rango de fechas ordenados cronológicamente
      */
     List<ProduccionConsumoEnergia> findByEmprendimientoIdAndFechaBetweenOrderByFechaAsc(
-            Long emprendimientoId, LocalDate fechaDesde, LocalDate fechaHasta);
+            Long emprendimientoId, LocalDate fechaInicio, LocalDate fechaFin);
     
     /**
-     * Busca todos los registros de producción y consumo de energía para un emprendimiento específico,
-     * ordenados descendentemente por fecha (más recientes primero).
-     * <p>
-     * Este método permite obtener el historial completo de datos energéticos de un emprendimiento,
-     * con los registros más recientes al principio de la lista.
-     * </p>
-     * 
-     * @param emprendimientoId Identificador del emprendimiento
-     * @return Lista de registros de producción y consumo del emprendimiento, ordenados por fecha descendente
+     * Obtiene un resumen de producción y consumo para todos los emprendimientos.
+     * Devuelve un mapa con los totales y promedios por emprendimiento.
      */
-    List<ProduccionConsumoEnergia> findByEmprendimientoIdOrderByFechaDesc(Long emprendimientoId);
-    
-    /**
-     * Obtiene un resumen estadístico de producción y consumo de energía para todos los emprendimientos.
-     * <p>
-     * Esta consulta utiliza una función almacenada en la base de datos que procesa y devuelve
-     * información resumida sobre los patrones de producción y consumo energético.
-     * </p>
-     * 
-     * @return Lista de mapas conteniendo el resumen de producción y consumo de energía
-     */
-    @Query(value = "SELECT * FROM get_resumen_produccion_consumo()", nativeQuery = true)
+    @Query(value = "SELECT e.nombre as nombre_emprendimiento, " +
+            "SUM(p.produccion_energia) as total_produccion, " +
+            "SUM(p.consumo_energia) as total_consumo, " +
+            "AVG(p.produccion_energia) as promedio_produccion, " +
+            "AVG(p.consumo_energia) as promedio_consumo " +
+            "FROM produccionconsumoenergia p " +
+            "JOIN emprendimiento e ON p.idemprendimiento = e.idemprendimiento " +
+            "GROUP BY e.idemprendimiento, e.nombre", 
+            nativeQuery = true)
     List<Map<String, Object>> getResumenProduccionConsumo();
 }
