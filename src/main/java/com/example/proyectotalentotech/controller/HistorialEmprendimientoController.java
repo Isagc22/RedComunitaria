@@ -7,7 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.HashMap;
+import org.springframework.http.HttpStatus;
 
 @RestController
 @RequestMapping("/historialEmprendimiento")
@@ -79,5 +82,19 @@ public class HistorialEmprendimientoController {
         }
         historialEmprendimientoService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint para obtener top 10 países con mayor emprendimiento
+    @GetMapping("/top-paises")
+    public ResponseEntity<?> getTopPaisesEmprendimiento() {
+        try {
+            List<Map<String, Object>> resultados = historialEmprendimientoService.getTopPaisesEmprendimiento();
+            return ResponseEntity.ok(resultados);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al obtener top países con mayor emprendimiento");
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }

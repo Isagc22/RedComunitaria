@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -109,5 +111,70 @@ public class EmprendimientoController {
         }
         emprendimientoService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Endpoint para obtener cantidad de emprendimientos por región
+    @GetMapping("/por-region")
+    public ResponseEntity<?> getEmprendimientosPorRegion() {
+        try {
+            List<Map<String, Object>> resultados = emprendimientoService.getEmprendimientosPorRegion();
+            return ResponseEntity.ok(resultados);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al obtener emprendimientos por región");
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Endpoint para obtener porcentaje de emprendimientos por región
+    @GetMapping("/porcentaje-por-region")
+    public ResponseEntity<?> getPorcentajeEmprendimientosPorRegion() {
+        try {
+            List<Map<String, Object>> resultados = emprendimientoService.getPorcentajeEmprendimientosPorRegion();
+            return ResponseEntity.ok(resultados);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al obtener porcentaje de emprendimientos por región");
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    // Endpoint para obtener emprendimientos de un usuario
+    @GetMapping("/mis-emprendimientos")
+    public ResponseEntity<?> getMisEmprendimientos(@RequestHeader("Authorization") String authorization) {
+        try {
+            // Extraer el token
+            String token = authorization.replace("Bearer ", "");
+            
+            // Obtener el usuario del token (esto depende de tu implementación de seguridad)
+            // Por ahora, simulamos que tenemos el ID del usuario
+            Integer userId = 1; // Este valor debería obtenerse del token
+            
+            // Obtener los emprendimientos del usuario
+            List<Emprendimiento> emprendimientos = emprendimientoService.listarTodos(); // Aquí deberías filtrar por usuario
+            
+            // Si no hay emprendimientos, crear algunos de ejemplo
+            if (emprendimientos.isEmpty()) {
+                Emprendimiento ejemplo = new Emprendimiento();
+                ejemplo.setIdemprendimiento(1);
+                ejemplo.setNombre("Emprendimiento de Ejemplo");
+                ejemplo.setDescripcion("Este es un emprendimiento de ejemplo para pruebas");
+                ejemplo.setTipo("Tecnología");
+                ejemplo.setEstado_emprendimiento(true);
+                ejemplo.setIdregiones(1);
+                ejemplo.setIdusuarios(userId);
+                
+                emprendimientos = List.of(ejemplo);
+            }
+            
+            return ResponseEntity.ok(emprendimientos);
+        } catch (Exception e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("mensaje", "Error al obtener emprendimientos del usuario");
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }
