@@ -22,6 +22,28 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+/**
+ * Controlador para la autenticación y registro de usuarios.
+ * <p>
+ * Este controlador proporciona endpoints para que los usuarios puedan iniciar sesión
+ * y registrarse en el sistema. Maneja la autenticación mediante JWT (JSON Web Token) y
+ * soporta diferentes mecanismos de verificación de contraseñas para mayor compatibilidad
+ * con sistemas existentes.
+ * </p>
+ * <p>
+ * Características principales:
+ * <ul>
+ *   <li>Autenticación de usuarios mediante nombre de usuario o correo electrónico</li>
+ *   <li>Generación de tokens JWT para usuarios autenticados</li>
+ *   <li>Registro de nuevos usuarios con asignación automática de roles</li>
+ *   <li>Soporte para contraseñas en texto plano (compatibilidad) y encriptadas</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Equipo RedComunitaria
+ * @version 1.0
+ * @since 2023-03-30
+ */
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -34,6 +56,25 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    /**
+     * Autentica a un usuario y genera un token JWT si las credenciales son válidas.
+     * <p>
+     * Este método recibe las credenciales del usuario (nombre de usuario/email y contraseña)
+     * y verifica su validez. La autenticación se realiza de dos maneras:
+     * <ol>
+     *   <li>Verificación directa de contraseña (para contraseñas almacenadas en texto plano)</li>
+     *   <li>Autenticación mediante Spring Security (para contraseñas encriptadas)</li>
+     * </ol>
+     * </p>
+     * <p>
+     * Si la autenticación es exitosa, el método genera un token JWT y lo devuelve junto con
+     * información básica del usuario en el cuerpo de la respuesta.
+     * </p>
+     * 
+     * @param request DTO que contiene las credenciales del usuario (username/email y password)
+     * @return ResponseEntity con el token JWT y datos del usuario si la autenticación es exitosa,
+     *         o un mensaje de error en caso contrario
+     */
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequestDTO request) {
         log.info("Intento de login con usuario: {}", request.getUsername());
@@ -107,6 +148,23 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Credenciales incorrectas");
     }
 
+    /**
+     * Registra un nuevo usuario en el sistema.
+     * <p>
+     * Este método recibe las credenciales del nuevo usuario y verifica que no exista
+     * un usuario con el mismo nombre de usuario o correo electrónico. Si las validaciones
+     * son exitosas, crea un nuevo usuario en la base de datos, le asigna un rol predeterminado
+     * y genera un token JWT para el usuario recién registrado.
+     * </p>
+     * <p>
+     * El registro está simplificado y usa el username como email, y almacena la contraseña
+     * en texto plano para mantener compatibilidad con sistemas existentes.
+     * </p>
+     * 
+     * @param request DTO que contiene las credenciales del nuevo usuario (username y password)
+     * @return ResponseEntity con el token JWT y datos del usuario si el registro es exitoso,
+     *         o un mensaje de error en caso contrario
+     */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequestDTO request) {
         log.info("Intento de registro de usuario: {}", request.getUsername());

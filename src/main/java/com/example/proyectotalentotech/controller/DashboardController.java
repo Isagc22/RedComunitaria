@@ -15,6 +15,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.*;
 
+/**
+ * Controlador REST para el panel de control (dashboard) de la aplicación.
+ * <p>
+ * Esta clase proporciona endpoints para obtener datos estadísticos y analíticos
+ * que serán mostrados en el panel de control del frontend. Incluye información
+ * sobre emprendimientos categorizados por tipo, permitiendo visualizar los datos
+ * en gráficos y reportes.
+ * </p>
+ * 
+ * @author Equipo RedComunitaria
+ * @version 1.0
+ * @since 2023-03-30
+ */
 @RestController
 @RequestMapping("/api/dashboard")
 @CrossOrigin(origins = {"http://localhost:3000"}, 
@@ -24,12 +37,27 @@ public class DashboardController {
 
     private final EmprendimientoService emprendimientoService;
 
+    /**
+     * Constructor para la inyección de dependencias.
+     * 
+     * @param emprendimientoService Servicio para gestionar operaciones de emprendimientos
+     */
     @Autowired
     public DashboardController(EmprendimientoService emprendimientoService) {
         this.emprendimientoService = emprendimientoService;
     }
 
-    // Endpoint para datos simplificados - Emprendimientos existentes
+    /**
+     * Proporciona datos sobre emprendimientos clasificados por tipo para visualización en gráficos.
+     * <p>
+     * Este endpoint recupera todos los emprendimientos del sistema y los agrupa por tipo,
+     * contando cuántos hay en cada categoría. Si no hay datos disponibles, devuelve datos
+     * de ejemplo para que el frontend pueda mostrar una vista previa.
+     * </p>
+     * 
+     * @return ResponseEntity con un mapa que contiene las etiquetas (tipos), datos (conteo)
+     *         y total de emprendimientos
+     */
     @GetMapping("/emprendimientos-datos")
     public ResponseEntity<Map<String, Object>> getDatosEmprendimientos() {
         try {

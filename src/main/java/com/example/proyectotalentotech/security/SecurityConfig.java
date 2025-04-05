@@ -18,6 +18,29 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Configuración de seguridad para la aplicación.
+ * <p>
+ * Esta clase define la configuración de seguridad de Spring Security para la aplicación,
+ * incluyendo reglas de autorización para rutas específicas, políticas de sesiones,
+ * configuración CORS (Cross-Origin Resource Sharing), y la integración del filtro
+ * de autenticación JWT.
+ * </p>
+ * <p>
+ * Las principales características de esta configuración son:
+ * <ul>
+ *   <li>Desactivación de CSRF para permitir solicitudes desde aplicaciones frontend</li>
+ *   <li>Configuración de CORS para permitir solicitudes desde orígenes específicos</li>
+ *   <li>Definición de rutas públicas y protegidas</li>
+ *   <li>Configuración de política de sesiones sin estado (stateless)</li>
+ *   <li>Integración del filtro de autenticación JWT</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Equipo RedComunitaria
+ * @version 1.0
+ * @since 2023-03-30
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -27,6 +50,24 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    /**
+     * Configura la cadena de filtros de seguridad.
+     * <p>
+     * Este método define las reglas de seguridad para la aplicación, incluyendo:
+     * <ul>
+     *   <li>Desactivación de CSRF</li>
+     *   <li>Configuración de CORS</li>
+     *   <li>Reglas de autorización para diferentes rutas</li>
+     *   <li>Política de sesiones sin estado</li>
+     *   <li>Integración del proveedor de autenticación</li>
+     *   <li>Adición del filtro de autenticación JWT</li>
+     * </ul>
+     * </p>
+     * 
+     * @param http El objeto HttpSecurity a configurar
+     * @return La cadena de filtros de seguridad configurada
+     * @throws Exception Si ocurre un error durante la configuración
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -49,6 +90,17 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Configura la fuente de configuración CORS.
+     * <p>
+     * Este método define la configuración de CORS para permitir solicitudes desde
+     * orígenes específicos, con métodos HTTP específicos y encabezados permitidos.
+     * La configuración permite solicitudes desde diferentes instancias de localhost
+     * en diferentes puertos, lo que facilita el desarrollo y pruebas.
+     * </p>
+     * 
+     * @return La fuente de configuración CORS
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
